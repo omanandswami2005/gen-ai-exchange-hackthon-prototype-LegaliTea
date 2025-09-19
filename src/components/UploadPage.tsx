@@ -16,6 +16,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { AnimatedButton } from "@/components/ui/animated-button";
+import { AnimatedCard, StaggeredCards } from "@/components/ui/animated-card";
+import { AnimatedTextarea } from "@/components/ui/animated-input";
+import { AnimatedUpload } from "@/components/ui/animated-upload";
+import { useAudioFeedback } from "@/services/audioFeedback";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAppStore } from "@/stores/appStore";
@@ -23,6 +28,7 @@ import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
 import { useAnalysis } from "@/hooks/useAnalysis";
 import { sampleDocuments } from "@/services/documentProcessor";
 import { AnimatedLanguageText } from "./LanguageSelector";
+import { HeroLogo } from "./AnimatedLogo";
 
 export const UploadPage: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -33,6 +39,7 @@ export const UploadPage: React.FC = () => {
   const { uploadedFile, error, clearError } = useAppStore();
   const { processFile, processText, validateFile } = useDocumentProcessor();
   const { analyzeDocument } = useAnalysis();
+  const { playUpload, playSuccess, playError, playCompletion } = useAudioFeedback();
 
   // Handle drag events
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -79,17 +86,21 @@ export const UploadPage: React.FC = () => {
     // Validate file first
     const validation = validateFile(file);
     if (!validation.valid) {
+      playError();
       return; // Error will be set by the hook
     }
 
     try {
+      playUpload();
       const extractedText = await processFile(file);
       if (extractedText) {
+        playSuccess();
         // Automatically start analysis
         analyzeDocument(extractedText, getDocumentType(file.name));
       }
     } catch (error) {
       console.error("File processing error:", error);
+      playError();
     }
   };
 
@@ -98,8 +109,11 @@ export const UploadPage: React.FC = () => {
     clearError();
 
     if (processText(textInput)) {
+      playUpload();
       // Automatically start analysis
       analyzeDocument(textInput);
+    } else {
+      playError();
     }
   };
 
@@ -133,6 +147,9 @@ export const UploadPage: React.FC = () => {
     <div className="max-w-4xl mx-auto">
       {/* Header */}
       <div className="text-center mb-8">
+        <div className="flex justify-center mb-6">
+          <HeroLogo />
+        </div>
         <h1 className="text-4xl font-bold text-foreground mb-4">
           Understand any legal document in <AnimatedLanguageText />
         </h1>
@@ -156,7 +173,7 @@ export const UploadPage: React.FC = () => {
       )}
 
       {/* Main Upload Interface */}
-      <Card className="mb-6">
+      <AnimatedCard animation="fade-up" className="mb-6">
         <CardHeader>
           <CardTitle>Choose how to add your document</CardTitle>
           <CardDescription>
@@ -255,50 +272,52 @@ export const UploadPage: React.FC = () => {
               </div>
 
               {/* Document Type Examples */}
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 border rounded-lg">
+              <StaggeredCards className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <AnimatedCard animation="hover-lift" className="text-center p-4">
                   <FileText className="h-8 w-8 text-blue-500 mx-auto mb-2" />
                   <h4 className="font-medium">Leases & Rentals</h4>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Apartment leases, rental agreements
                   </p>
-                </div>
-                <div className="text-center p-4 border rounded-lg">
+                </AnimatedCard>
+                <AnimatedCard animation="hover-lift" className="text-center p-4">
                   <FileImage className="h-8 w-8 text-green-500 mx-auto mb-2" />
                   <h4 className="font-medium">Contracts & NDAs</h4>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Service agreements, NDAs
                   </p>
-                </div>
-                <div className="text-center p-4 border rounded-lg">
+                </AnimatedCard>
+                <AnimatedCard animation="hover-lift" className="text-center p-4">
                   <File className="h-8 w-8 text-purple-500 mx-auto mb-2" />
                   <h4 className="font-medium">Terms of Service</h4>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted-foreground">
                     Website terms, user agreements
                   </p>
-                </div>
-              </div>
+                </AnimatedCard>
+              </StaggeredCards>
             </TabsContent>
 
             {/* Text Input Tab */}
             <TabsContent value="text" className="mt-6">
               <div className="space-y-4">
-                <Textarea
+                <AnimatedTextarea
                   placeholder="Paste your legal text here..."
                   value={textInput}
                   onChange={(e) => setTextInput(e.target.value)}
                   className="min-h-[200px] resize-none"
+                  animation="focus-ring"
                 />
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {textInput.length.toLocaleString()} / 50,000 characters
                   </div>
-                  <Button
+                  <AnimatedButton
                     onClick={handleTextSubmit}
                     disabled={textInput.trim().length < 50}
+                    animation="scale"
                   >
                     Analyze Text
-                  </Button>
+                  </AnimatedButton>
                 </div>
               </div>
 
@@ -306,33 +325,36 @@ export const UploadPage: React.FC = () => {
               <div className="mt-6">
                 <h4 className="font-medium mb-3">Try a sample document:</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                  <Button
+                  <AnimatedButton
                     variant="outline"
                     size="sm"
                     onClick={() => loadSample("lease")}
                     className="justify-start"
+                    animation="lift"
                   >
                     <FileText className="h-4 w-4 mr-2" />
                     Sample Lease
-                  </Button>
-                  <Button
+                  </AnimatedButton>
+                  <AnimatedButton
                     variant="outline"
                     size="sm"
                     onClick={() => loadSample("nda")}
                     className="justify-start"
+                    animation="lift"
                   >
                     <File className="h-4 w-4 mr-2" />
                     Sample NDA
-                  </Button>
-                  <Button
+                  </AnimatedButton>
+                  <AnimatedButton
                     variant="outline"
                     size="sm"
                     onClick={() => loadSample("contract")}
                     className="justify-start"
+                    animation="lift"
                   >
                     <FileImage className="h-4 w-4 mr-2" />
                     Sample Contract
-                  </Button>
+                  </AnimatedButton>
                 </div>
               </div>
             </TabsContent>

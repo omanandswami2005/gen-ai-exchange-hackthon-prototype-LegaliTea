@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AIAnalyzer } from "../services/aiAnalyzer";
 import { useAppStore } from "../stores/appStore";
 import { useLanguage } from "../constants/languages";
+import { audioFeedback } from "../services/audioFeedback";
 import type { AnalysisResult } from "../types";
 
 export const useAnalysis = () => {
@@ -33,12 +34,18 @@ export const useAnalysis = () => {
       setAnalysisResult(result);
       setProcessingStage("complete");
 
+      // Play completion sound
+      audioFeedback.completion();
+
       // Cache the result
       queryClient.setQueryData(["analysis", result.originalText], result);
     },
     onError: (error: Error) => {
       setError(error.message);
       setProcessingStage("upload");
+
+      // Play error sound
+      audioFeedback.error();
     },
   });
 

@@ -33,8 +33,11 @@ function getLanguageName(code) {
     return languages[code] || 'English';
 }
 
-// Legal document analysis prompt
-const ANALYSIS_PROMPT = `You are a legal document analysis assistant. Analyze the provided legal document and return a comprehensive analysis in JSON format. Focus on making complex legal language accessible to non-lawyers.
+// Real Gemini AI analysis function
+async function analyzeWithGemini(text, documentType = 'document', language = 'en') {
+    try {
+        // Legal document analysis prompt with language support
+        const ANALYSIS_PROMPT = `You are a legal document analysis assistant. Analyze the provided legal document and return a comprehensive analysis in JSON format. Focus on making complex legal language accessible to non-lawyers.
 
 Please analyze the document and respond with ONLY a valid JSON object in this exact format:
 
@@ -70,9 +73,6 @@ Document to analyze:
 
 IMPORTANT: Please provide the analysis in ${getLanguageName(language)} language. All explanations, summaries, and recommendations should be in ${getLanguageName(language)}.`;
 
-// Real Gemini AI analysis function
-async function analyzeWithGemini(text, documentType = 'document', language = 'en') {
-    try {
         const prompt = `${ANALYSIS_PROMPT}\n\n${text}`;
 
         const result = await model.generateContent(prompt);

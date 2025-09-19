@@ -27,6 +27,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAppStore } from "@/stores/appStore";
 import { useLanguage } from "@/constants/languages";
 import { OriginalTextViewer } from "./OriginalTextViewer";
+import {
+  TTSSummaryControl,
+  TTSKeyPointsControl,
+  TTSRisksControl,
+  TTSActionPlanControl,
+} from "./TTSControl";
 import type { RiskFlag, ActionItem, DateInfo, MonetaryInfo } from "@/types";
 
 export const DashboardResultsPage: React.FC = () => {
@@ -313,9 +319,12 @@ export const DashboardResultsPage: React.FC = () => {
           {/* What This Means */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-success" />
-                {t("results.whatThisMeans")}
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-success" />
+                  {t("results.whatThisMeans")}
+                </div>
+                <TTSSummaryControl summary={analysisResult.summary} />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -344,7 +353,12 @@ export const DashboardResultsPage: React.FC = () => {
               </div>
 
               <div className="space-y-3">
-                <h4 className="font-semibold text-foreground">Key Points:</h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-foreground">Key Points:</h4>
+                  <TTSKeyPointsControl
+                    keyPoints={analysisResult.summary.keyPoints}
+                  />
+                </div>
                 {analysisResult.summary.keyPoints.map((point, index) => (
                   <div
                     key={index}
@@ -376,9 +390,14 @@ export const DashboardResultsPage: React.FC = () => {
           {/* Risk Assessment */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <AlertTriangle className="h-5 w-5 text-warning" />
-                {t("results.watchOutFor")}
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-warning" />
+                  {t("results.watchOutFor")}
+                </div>
+                <TTSRisksControl
+                  risks={analysisResult.riskAssessment.redFlags}
+                />
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -543,9 +562,12 @@ export const DashboardResultsPage: React.FC = () => {
           {/* Action Plan */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                {t("results.whatYouShouldDo")}
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-5 w-5 text-primary" />
+                  {t("results.whatYouShouldDo")}
+                </div>
+                <TTSActionPlanControl actionPlan={analysisResult.actionPlan} />
               </CardTitle>
             </CardHeader>
             <CardContent>

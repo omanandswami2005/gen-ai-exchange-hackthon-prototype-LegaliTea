@@ -16,6 +16,8 @@ import {
   AnimatedLanguageText,
 } from "./components/LanguageSelector";
 import { DashboardResultsPage } from "./components/DashboardResultsPage";
+import { EnhancedNavBar } from "./components/EnhancedNavBar";
+import { TextSelectionTTS } from "./components/TextSelectionTTS";
 
 // Import dev helpers in development
 if (import.meta.env.DEV) {
@@ -31,21 +33,9 @@ function App() {
       <LanguageProvider>
         <QueryClientProvider client={queryClient}>
           <div className="min-h-screen bg-background text-foreground transition-colors">
-            <div className="container mx-auto px-4 py-8">
-              {/* Header with controls */}
-              <header className="flex justify-between items-center mb-8">
-                <div className="text-center flex-1">
-                  <h1 className="text-4xl font-bold mb-2">LegaliTea AI</h1>
-                  {/* <p className="text-muted-foreground">
-                    Understand any legal document in plain{" "}
-                    <AnimatedLanguageText />
-                  </p> */}
-                </div>
-                <div className="flex items-center gap-2">
-                  <LanguageSelector />
-                  <ThemeToggle />
-                </div>
-              </header>
+            <div className="container mx-auto px-4">
+              {/* Enhanced Navigation Bar */}
+              <EnhancedNavBar />
 
               <main className="max-w-7xl mx-auto">
                 {/* App content based on current stage */}
@@ -72,6 +62,9 @@ function App() {
                 )}
               </main>
             </div>
+
+            {/* Text Selection TTS */}
+            <TextSelectionTTS />
           </div>
 
           {/* React Query Devtools */}
