@@ -33,6 +33,7 @@ import {
   TTSRisksControl,
   TTSActionPlanControl,
 } from "./TTSControl";
+import { AdvancedFeaturesHub } from "./AdvancedFeaturesHub";
 import type { RiskFlag, ActionItem, DateInfo, MonetaryInfo } from "@/types";
 
 export const DashboardResultsPage: React.FC = () => {
@@ -610,6 +611,25 @@ export const DashboardResultsPage: React.FC = () => {
           </Card>
         </div>
       </div>
+
+      {/* Advanced Features Hub */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-primary" />
+            Advanced Legal Tools
+          </CardTitle>
+          <CardDescription>
+            Unlock powerful features to dive deeper into your document analysis
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AdvancedFeaturesHub
+            analysisResult={analysisResult}
+            originalText={analysisResult.originalText}
+          />
+        </CardContent>
+      </Card>
 
       {/* Original Text Viewer */}
       {showOriginalText && (
