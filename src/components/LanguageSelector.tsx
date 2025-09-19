@@ -6,7 +6,7 @@ import {
   useLanguage,
   SUPPORTED_LANGUAGES,
   type Language,
-} from "@/contexts/LanguageContext";
+} from "@/constants/languages.ts";
 
 export const LanguageSelector: React.FC = () => {
   const { currentLanguage, setLanguage } = useLanguage();

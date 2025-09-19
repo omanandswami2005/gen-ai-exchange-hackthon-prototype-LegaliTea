@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { AIAnalyzer } from "../services/aiAnalyzer";
 import { useAppStore } from "../stores/appStore";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useLanguage } from "../constants/languages";
 import type { AnalysisResult } from "../types";
 
 export const useAnalysis = () => {

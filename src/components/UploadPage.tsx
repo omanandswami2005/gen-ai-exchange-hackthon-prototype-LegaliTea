@@ -21,8 +21,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAppStore } from "@/stores/appStore";
 import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
 import { useAnalysis } from "@/hooks/useAnalysis";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { sampleDocuments } from "@/services/documentProcessor";
+import { AnimatedLanguageText } from "./LanguageSelector";
 
 export const UploadPage: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -134,7 +134,7 @@ export const UploadPage: React.FC = () => {
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-4xl font-bold text-foreground mb-4">
-          Understand any legal document in plain English
+          Understand any legal document in <AnimatedLanguageText />
         </h1>
         <p className="text-lg text-muted-foreground mb-2">
           Upload your contract, lease, or legal document to get started

@@ -35,11 +35,11 @@ function App() {
               {/* Header with controls */}
               <header className="flex justify-between items-center mb-8">
                 <div className="text-center flex-1">
-                  <h1 className="text-4xl font-bold mb-2">LegaliTea</h1>
-                  <p className="text-muted-foreground">
+                  <h1 className="text-4xl font-bold mb-2">LegaliTea AI</h1>
+                  {/* <p className="text-muted-foreground">
                     Understand any legal document in plain{" "}
                     <AnimatedLanguageText />
-                  </p>
+                  </p> */}
                 </div>
                 <div className="flex items-center gap-2">
                   <LanguageSelector />

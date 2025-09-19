@@ -1,10 +1,9 @@
 # 🍵 LegaliTea - AI-Powered Legal Document Analyzer
 
-> **Understand any legal document in plain English** - Built for the Gen AI Exchange Hackathon
+> **Understand any legal document in YOUR-NATIVE-LANG** - Built for the Gen AI Exchange Hackathon
 
 [![Live Demo](https://img.shields.io/badge/🚀-Live%20Demo-blue)](https://legalitea.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-black)](https://github.com/omanandswami2005/gen-ai-exchange-hackthon-prototype-LegaliTea)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 ## 🌟 Overview
 
@@ -157,18 +156,18 @@ npm run server   # Backend (http://localhost:3001)
 
 LegaliTea supports analysis and results in multiple languages:
 
-| Language | Code | Native Name |
-| -------- | ---- | ----------- |
-| English  | `en` | English     |
-| Hindi    | `hi` | हिंदी       |
-| Kannada  | `kn` | ಕನ್ನಡ       |
-| Gujarati | `gu` | ગુજરાતી     |
-| Spanish  | `es` | Español     |
-| French   | `fr` | Français    |
-| German   | `de` | Deutsch     |
-| Chinese  | `zh` | 中文        |
-| Japanese | `ja` | 日本語      |
-| Arabic   | `ar` | العربية     |
+| Language | Code   | Native Name    |
+| -------- | ------ | -------------- |
+| English  | `en` | English        |
+| Hindi    | `hi` | हिंदी     |
+| Kannada  | `kn` | ಕನ್ನಡ     |
+| Gujarati | `gu` | ગુજરાતી |
+| Spanish  | `es` | Español       |
+| French   | `fr` | Français      |
+| German   | `de` | Deutsch        |
+| Chinese  | `zh` | 中文           |
+| Japanese | `ja` | 日本語         |
+| Arabic   | `ar` | العربية |
 
 ## 🏗️ Project Structure
 
@@ -222,8 +221,8 @@ npm run lint         # Run ESLint
 
 ### Environment Variables
 
-| Variable                 | Description            | Required |
-| ------------------------ | ---------------------- | -------- |
+| Variable                   | Description            | Required |
+| -------------------------- | ---------------------- | -------- |
 | `VITE_GEMINI_API_KEY`    | Google Gemini API key  | Yes      |
 | `VITE_SUPABASE_URL`      | Supabase project URL   | Optional |
 | `VITE_SUPABASE_ANON_KEY` | Supabase anonymous key | Optional |

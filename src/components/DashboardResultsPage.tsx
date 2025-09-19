@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAppStore } from "@/stores/appStore";
-import { useLanguage } from "@/contexts/LanguageContext";
+import { useLanguage } from "@/constants/languages";
 import { OriginalTextViewer } from "./OriginalTextViewer";
 import type { RiskFlag, ActionItem, DateInfo, MonetaryInfo } from "@/types";
 
