@@ -1,0 +1,360 @@
+import React, { useState, useCallback, useRef } from "react";
+import {
+  Upload,
+  FileText,
+  AlertCircle,
+  CheckCircle2,
+  File,
+  FileImage,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAppStore } from "@/stores/appStore";
+import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
+import { useAnalysis } from "@/hooks/useAnalysis";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { sampleDocuments } from "@/services/documentProcessor";
+
+export const UploadPage: React.FC = () => {
+  const [dragActive, setDragActive] = useState(false);
+  const [textInput, setTextInput] = useState("");
+  const [activeTab, setActiveTab] = useState("upload");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { uploadedFile, error, clearError } = useAppStore();
+  const { processFile, processText, validateFile } = useDocumentProcessor();
+  const { analyzeDocument } = useAnalysis();
+
+  // Handle drag events
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  }, []);
+
+  // Handle file drop
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragActive(false);
+      clearError();
+
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0) {
+        await handleFileUpload(files[0]);
+      }
+    },
+    [clearError]
+  );
+
+  // Handle file selection
+  const handleFileSelect = useCallback(
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        await handleFileUpload(files[0]);
+      }
+    },
+    []
+  );
+
+  // Process uploaded file
+  const handleFileUpload = async (file: File) => {
+    clearError();
+
+    // Validate file first
+    const validation = validateFile(file);
+    if (!validation.valid) {
+      return; // Error will be set by the hook
+    }
+
+    try {
+      const extractedText = await processFile(file);
+      if (extractedText) {
+        // Automatically start analysis
+        analyzeDocument(extractedText, getDocumentType(file.name));
+      }
+    } catch (error) {
+      console.error("File processing error:", error);
+    }
+  };
+
+  // Handle text input
+  const handleTextSubmit = () => {
+    clearError();
+
+    if (processText(textInput)) {
+      // Automatically start analysis
+      analyzeDocument(textInput);
+    }
+  };
+
+  // Load sample document
+  const loadSample = (sampleKey: keyof typeof sampleDocuments) => {
+    const sampleText = sampleDocuments[sampleKey];
+    setTextInput(sampleText);
+    setActiveTab("text");
+  };
+
+  // Get document type from filename
+  const getDocumentType = (filename: string): string => {
+    const name = filename.toLowerCase();
+    if (name.includes("lease") || name.includes("rental")) return "lease";
+    if (name.includes("nda") || name.includes("non-disclosure")) return "nda";
+    if (name.includes("contract") || name.includes("agreement"))
+      return "contract";
+    return "document";
+  };
+
+  // Format file size
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-bold text-foreground mb-4">
+          Understand any legal document in plain English
+        </h1>
+        <p className="text-lg text-muted-foreground mb-2">
+          Upload your contract, lease, or legal document to get started
+        </p>
+        <div className="flex items-center justify-center gap-2 text-sm text-success">
+          <CheckCircle2 className="h-4 w-4" />
+          <span>Your document stays private and secure</span>
+        </div>
+      </div>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert className="mb-6 border-destructive/20 bg-destructive/10">
+          <AlertCircle className="h-4 w-4 text-destructive" />
+          <AlertDescription className="text-destructive">
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Main Upload Interface */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Choose how to add your document</CardTitle>
+          <CardDescription>
+            We support PDF and Word documents, or you can paste text directly
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="upload">Upload File</TabsTrigger>
+              <TabsTrigger value="text">Paste Text</TabsTrigger>
+            </TabsList>
+
+            {/* File Upload Tab */}
+            <TabsContent value="upload" className="mt-6">
+              <div
+                className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                  dragActive
+                    ? "border-info bg-info/10"
+                    : uploadedFile
+                    ? "border-success bg-success/10"
+                    : "border-border hover:border-primary/50"
+                }`}
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.docx,.doc"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+
+                {uploadedFile ? (
+                  // File uploaded state
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center">
+                      <CheckCircle2 className="h-12 w-12 text-green-500" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-green-700">
+                        File Ready!
+                      </h3>
+                      <p className="text-green-600">{uploadedFile.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {formatFileSize(uploadedFile.size)} •{" "}
+                        {uploadedFile.type.includes("pdf")
+                          ? "PDF"
+                          : "Word Document"}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                    >
+                      Choose Different File
+                    </Button>
+                  </div>
+                ) : (
+                  // Default upload state
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-center">
+                      <Upload className="h-12 w-12 text-gray-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-700">
+                        Drop your contract here
+                      </h3>
+                      <p className="text-gray-500">
+                        or click to browse your files
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <File className="h-4 w-4" />
+                        <span>PDF</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <FileText className="h-4 w-4" />
+                        <span>Word</span>
+                      </div>
+                      <span>•</span>
+                      <span>Max 10MB</span>
+                    </div>
+                    <Button
+                      onClick={() => fileInputRef.current?.click()}
+                      className="mt-4"
+                    >
+                      Browse Files
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Document Type Examples */}
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 border rounded-lg">
+                  <FileText className="h-8 w-8 text-blue-500 mx-auto mb-2" />
+                  <h4 className="font-medium">Leases & Rentals</h4>
+                  <p className="text-sm text-gray-500">
+                    Apartment leases, rental agreements
+                  </p>
+                </div>
+                <div className="text-center p-4 border rounded-lg">
+                  <FileImage className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                  <h4 className="font-medium">Contracts & NDAs</h4>
+                  <p className="text-sm text-gray-500">
+                    Service agreements, NDAs
+                  </p>
+                </div>
+                <div className="text-center p-4 border rounded-lg">
+                  <File className="h-8 w-8 text-purple-500 mx-auto mb-2" />
+                  <h4 className="font-medium">Terms of Service</h4>
+                  <p className="text-sm text-gray-500">
+                    Website terms, user agreements
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+
+            {/* Text Input Tab */}
+            <TabsContent value="text" className="mt-6">
+              <div className="space-y-4">
+                <Textarea
+                  placeholder="Paste your legal text here..."
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  className="min-h-[200px] resize-none"
+                />
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-gray-500">
+                    {textInput.length.toLocaleString()} / 50,000 characters
+                  </div>
+                  <Button
+                    onClick={handleTextSubmit}
+                    disabled={textInput.trim().length < 50}
+                  >
+                    Analyze Text
+                  </Button>
+                </div>
+              </div>
+
+              {/* Sample Documents */}
+              <div className="mt-6">
+                <h4 className="font-medium mb-3">Try a sample document:</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadSample("lease")}
+                    className="justify-start"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Sample Lease
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadSample("nda")}
+                    className="justify-start"
+                  >
+                    <File className="h-4 w-4 mr-2" />
+                    Sample NDA
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => loadSample("contract")}
+                    className="justify-start"
+                  >
+                    <FileImage className="h-4 w-4 mr-2" />
+                    Sample Contract
+                  </Button>
+                </div>
+              </div>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      {/* Trust Signals */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <span>Documents processed locally</span>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <span>No data stored permanently</span>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          <CheckCircle2 className="h-4 w-4 text-success" />
+          <span>Secure & private analysis</span>
+        </div>
+      </div>
+    </div>
+  );
+};
