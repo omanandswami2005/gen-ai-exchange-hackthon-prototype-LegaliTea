@@ -51,5 +51,5 @@ export interface AnalysisResult {
   createdAt: Date;
 }
 
-export type ProcessingStage = 'upload' | 'extract' | 'analyze' | 'complete';
+export type ProcessingStage = 'upload' | 'extract' | 'preview' | 'analyze' | 'complete';
 export type DocumentType = 'pdf' | 'docx' | 'text' | null;

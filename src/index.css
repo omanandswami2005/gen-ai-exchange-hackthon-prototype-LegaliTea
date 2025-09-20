@@ -48,6 +48,7 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    margin-bottom: 3rem;
   }
 }
 

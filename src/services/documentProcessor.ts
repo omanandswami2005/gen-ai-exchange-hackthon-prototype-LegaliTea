@@ -1,9 +1,5 @@
 import mammoth from "mammoth";
-import { createWorker } from "tesseract.js";
-import * as pdfjsLib from "pdfjs-dist";
-
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+import pdfToText from "react-pdftotext";
 
 export interface ProcessingProgress {
   stage: "validating" | "extracting" | "ocr" | "complete";
@@ -50,30 +46,37 @@ export class DocumentProcessor {
 
   // Main processing method
   async processDocument(file: File): Promise<string> {
+    console.log("Starting document processing for:", file.name, file.type, file.size);
+
     this.updateProgress("validating", 0, "Validating document...");
 
     const validation = this.validateDocument(file);
     if (!validation.valid) {
+      console.error("Document validation failed:", validation.error);
       throw new Error(validation.error);
     }
 
     this.updateProgress("extracting", 10, "Reading document...");
 
     try {
+      console.log("Processing file type:", file.type);
       if (file.type === "application/pdf") {
+        console.log("Processing as PDF");
         return await this.extractFromPDF(file);
       } else if (
         file.type.includes("wordprocessingml") ||
         file.type.includes("msword")
       ) {
+        console.log("Processing as Word document");
         return await this.extractFromDOCX(file);
       } else {
+        console.error("Unsupported file type:", file.type);
         throw new Error("Unsupported file type");
       }
     } catch (error) {
       console.error("Document processing error:", error);
       throw new Error(
-        "Failed to extract text from document. Please try another file."
+        `Failed to extract text from document. Please try another file. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
@@ -81,58 +84,38 @@ export class DocumentProcessor {
   // Extract text from PDF
   private async extractFromPDF(file: File): Promise<string> {
     try {
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      console.log("Starting PDF text extraction...");
 
       this.updateProgress(
         "extracting",
         30,
-        `Processing ${pdf.numPages} pages...`
+        "Extracting text from PDF document..."
       );
 
-      let fullText = "";
+      const text = await pdfToText(file);
+      console.log("PDF text extraction complete, text length:", text.trim().length);
 
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(" ");
-
-        fullText += pageText + "\n";
-
-        // Update progress
-        const progress = 30 + (i / pdf.numPages) * 50;
-        this.updateProgress(
-          "extracting",
-          progress,
-          `Processing page ${i} of ${pdf.numPages}...`
-        );
+      if (text.trim().length === 0) {
+        console.error("No text found in PDF document");
+        throw new Error("No text found in PDF document");
       }
 
-      // If no text found, might be image-based PDF
-      if (fullText.trim().length < 50) {
-        this.updateProgress(
-          "ocr",
-          80,
-          "Document appears to be image-based, using OCR..."
-        );
-        return await this.extractFromImagePDF(file);
-      }
-
-      this.updateProgress("complete", 100, "Text extraction complete!");
-      return fullText.trim();
+      this.updateProgress("complete", 100, "PDF text extraction complete!");
+      return text.trim();
     } catch (error) {
       console.error("PDF processing error:", error);
-      throw new Error("Unable to read PDF. Please try a different file.");
+      throw new Error(
+        `Unable to read PDF document. Please try a different file. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
   // Extract text from DOCX
   private async extractFromDOCX(file: File): Promise<string> {
     try {
+      console.log("Starting DOCX processing...");
       const arrayBuffer = await file.arrayBuffer();
+      console.log("DOCX array buffer created, size:", arrayBuffer.byteLength);
 
       this.updateProgress(
         "extracting",
@@ -141,8 +124,10 @@ export class DocumentProcessor {
       );
 
       const result = await mammoth.extractRawText({ arrayBuffer });
+      console.log("DOCX processing complete, text length:", result.value.trim().length);
 
       if (result.value.trim().length === 0) {
+        console.error("No text found in DOCX document");
         throw new Error("No text found in document");
       }
 
@@ -151,39 +136,11 @@ export class DocumentProcessor {
     } catch (error) {
       console.error("DOCX processing error:", error);
       throw new Error(
-        "Unable to read Word document. Please try a different file."
+        `Unable to read Word document. Please try a different file. Error: ${error instanceof Error ? error.message : 'Unknown error'}`
       );
     }
   }
 
-  // OCR for image-based PDFs
-  private async extractFromImagePDF(file: File): Promise<string> {
-    try {
-      // Convert PDF to images first (simplified approach)
-      // In a real implementation, you'd use pdf2pic or similar
-      const worker = await createWorker("eng");
-
-      this.updateProgress("ocr", 85, "Performing OCR on document...");
-
-      // For now, we'll use a placeholder since full OCR implementation
-      // requires additional setup and can be resource intensive
-      await worker.terminate();
-
-      // Return placeholder text indicating OCR would be needed
-      return `[OCR Processing Required]
-      
-This document appears to be image-based and requires Optical Character Recognition (OCR) to extract text. 
-
-For the MVP, please try uploading a text-based PDF or Word document instead.
-
-If you need to process image-based documents, this feature will be available in a future update.`;
-    } catch (error) {
-      console.error("OCR processing error:", error);
-      throw new Error(
-        "Unable to process image-based document. Please try a text-based PDF or Word document."
-      );
-    }
-  }
 
   // Process pasted text
   static processText(text: string): {

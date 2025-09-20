@@ -10,17 +10,14 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import { AnimatedButton } from "@/components/ui/animated-button";
 import { AnimatedCard, StaggeredCards } from "@/components/ui/animated-card";
 import { AnimatedTextarea } from "@/components/ui/animated-input";
-import { AnimatedUpload } from "@/components/ui/animated-upload";
 import { useAudioFeedback } from "@/services/audioFeedback";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -29,7 +26,6 @@ import { useDocumentProcessor } from "@/hooks/useDocumentProcessor";
 import { useAnalysis } from "@/hooks/useAnalysis";
 import { sampleDocuments } from "@/services/documentProcessor";
 import { AnimatedLanguageText } from "./LanguageSelector";
-import { HeroLogo } from "./AnimatedLogo";
 
 // Define TypeScript interfaces for type safety
 interface AppStore {
@@ -59,7 +55,7 @@ export const UploadPage: React.FC = () => {
   const { uploadedFile, error, setError, clearError } = useAppStore() as AppStore;
   const { processFile, processText, validateFile } = useDocumentProcessor() as DocumentProcessor;
   const { analyzeDocument } = useAnalysis() as Analysis;
-  const { playUpload, playSuccess, playError, playCompletion } = useAudioFeedback();
+  const { playUpload, playSuccess, playError } = useAudioFeedback();
 
   // Handle drag events
   const handleDrag = useCallback((e: React.DragEvent) => {
@@ -75,32 +71,37 @@ export const UploadPage: React.FC = () => {
   // Process uploaded file
   const handleFileUpload = useCallback(
     async (file: File) => {
-      clearError();
+       clearError();
+       console.log("Starting file upload processing:", file.name, file.type, file.size);
 
-      // Validate file first
-      const validation = validateFile(file);
-      if (!validation.valid) {
-        setError(validation.error || "Invalid file.");
-        playError();
-        return;
-      }
+       // Validate file first
+       const validation = validateFile(file);
+       if (!validation.valid) {
+         setError(validation.error || "Invalid file.");
+         playError();
+         return;
+       }
 
-      try {
-        playUpload();
-        const extractedText = await processFile(file);
-        if (extractedText) {
-          playSuccess();
-          // Automatically start analysis
-          analyzeDocument(extractedText, getDocumentType(file.name));
-        } else {
-          setError("No text could be extracted from the file.");
-          playError();
-        }
-      } catch (error) {
-        setError("Failed to process file. Please try again.");
-        playError();
-      }
-    },
+       try {
+         playUpload();
+         console.log("Calling processFile...");
+         const extractedText = await processFile(file);
+         console.log("processFile completed, extracted text length:", extractedText?.length);
+         if (extractedText) {
+           playSuccess();
+           console.log("Text extracted successfully, showing preview...");
+           // Preview will be shown automatically by the app state management
+           // User can review and edit before proceeding to analysis
+         } else {
+           setError("No text could be extracted from the file.");
+           playError();
+         }
+       } catch (error) {
+         console.error("File processing error:", error);
+         setError("Failed to process file. Please try again.");
+         playError();
+       }
+     },
     [clearError, setError, validateFile, processFile, analyzeDocument, playUpload, playSuccess, playError]
   );
 
@@ -168,14 +169,6 @@ export const UploadPage: React.FC = () => {
     []
   );
 
-  // Get document type from filename
-  const getDocumentType = useCallback((filename: string): string => {
-    const name = filename.toLowerCase();
-    if (name.includes("lease") || name.includes("rental")) return "lease";
-    if (name.includes("nda") || name.includes("non-disclosure")) return "nda";
-    if (name.includes("contract") || name.includes("agreement")) return "contract";
-    return "document";
-  }, []);
 
   // Format file size
   const formatFileSize = useCallback((bytes: number): string => {

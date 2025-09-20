@@ -10,8 +10,15 @@ interface ProcessingProgress {
 
 export const useDocumentProcessor = () => {
   const [isProcessing, setIsProcessing] = useState(false);
-  const { setExtractedText, setError, setProgress, setProcessingStage } =
-    useAppStore();
+  const {
+    setExtractedText,
+    setError,
+    setProgress,
+    setProcessingStage,
+    setShowPreview,
+    setPreviewText,
+    setPreviewFileName
+  } = useAppStore();
 
   const processFile = useCallback(
     async (file: File) => {
@@ -43,7 +50,11 @@ export const useDocumentProcessor = () => {
       try {
         const extractedText = await processor.processDocument(file);
         setExtractedText(extractedText);
+        setPreviewText(extractedText);
+        setPreviewFileName(file.name);
+        setShowPreview(true);
         setProgress(100);
+        setProcessingStage("preview");
         return extractedText;
       } catch (error) {
         const errorMessage =

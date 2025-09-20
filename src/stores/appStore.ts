@@ -12,6 +12,9 @@ interface AppState {
   isProcessing: boolean;
   processingStage: ProcessingStage;
   progress: number;
+  showPreview: boolean;
+  previewText: string;
+  previewFileName: string;
 
   // Results state
   analysisResult: AnalysisResult | null;
@@ -32,6 +35,9 @@ interface AppState {
   setError: (error: string | null) => void;
   setShowOriginalText: (show: boolean) => void;
   setSelectedSummaryPoint: (point: number | null) => void;
+  setShowPreview: (show: boolean) => void;
+  setPreviewText: (text: string) => void;
+  setPreviewFileName: (fileName: string) => void;
   clearError: () => void;
   reset: () => void;
 }
@@ -47,6 +53,9 @@ const initialState = {
   error: null,
   showOriginalText: false,
   selectedSummaryPoint: null,
+  showPreview: false,
+  previewText: "",
+  previewFileName: "",
 };
 
 export const useAppStore = create<AppState>()(
@@ -106,6 +115,12 @@ export const useAppStore = create<AppState>()(
       setShowOriginalText: (show) => set({ showOriginalText: show }),
 
       setSelectedSummaryPoint: (point) => set({ selectedSummaryPoint: point }),
+
+      setShowPreview: (show) => set({ showPreview: show }),
+
+      setPreviewText: (text) => set({ previewText: text }),
+
+      setPreviewFileName: (fileName) => set({ previewFileName: fileName }),
 
       clearError: () => set({ error: null }),
 

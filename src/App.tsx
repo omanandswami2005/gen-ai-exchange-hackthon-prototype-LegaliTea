@@ -3,6 +3,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "./lib/queryClient";
 import { useAppStore } from "./stores/appStore";
 import { useDevHelpers } from "./stores/devHelpers";
+import { useState } from "react";
 import { UploadPage } from "./components/UploadPage";
 import { ProcessingPage } from "./components/ProcessingPage";
 import { ResultsPage } from "./components/ResultsPage";
@@ -18,6 +19,8 @@ import {
 import { DashboardResultsPage } from "./components/DashboardResultsPage";
 import { EnhancedNavBar } from "./components/EnhancedNavBar";
 import { TextSelectionTTS } from "./components/TextSelectionTTS";
+import { DocumentPreview } from "./components/DocumentPreview";
+import { SavedAnalysesSidebar } from "./components/SavedAnalysesSidebar";
 
 // Import dev helpers in development
 if (import.meta.env.DEV) {
@@ -25,7 +28,8 @@ if (import.meta.env.DEV) {
 }
 
 function App() {
-  const { processingStage, analysisResult } = useAppStore();
+  const { processingStage, analysisResult, showPreview, previewText, previewFileName, setProcessingStage } = useAppStore();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const devHelpers = useDevHelpers();
 
   return (
@@ -41,6 +45,20 @@ function App() {
                 {/* App content based on current stage */}
                 {processingStage === "upload" && !analysisResult && (
                   <UploadPage />
+                )}
+
+                {processingStage === "preview" && showPreview && (
+                  <DocumentPreview
+                    extractedText={previewText}
+                    fileName={previewFileName}
+                    onConfirm={(editedText) => {
+                      setProcessingStage("analyze");
+                      // The analysis will be triggered by the DocumentPreview component
+                    }}
+                    onCancel={() => {
+                      setProcessingStage("upload");
+                    }}
+                  />
                 )}
 
                 {(processingStage === "extract" ||
