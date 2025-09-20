@@ -1,11 +1,16 @@
-import app from './app.js';
-import dotenv from 'dotenv';
+const app = require('./app.js');
+require('dotenv').config();
 
-dotenv.config();
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-    console.log(`🍵 LegaliTea Server running on http://localhost:${PORT}`);
-    console.log(`🤖 Gemini API configured: ${process.env.GEMINI_API_KEY ? 'Yes' : 'No'}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-});
+// Export for Vercel serverless functions
+module.exports = app;
+
+// For local development only
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(`🍵 LegaliTea Server running on http://localhost:${PORT}`);
+        console.log(`🤖 Gemini API configured: ${process.env.GEMINI_API_KEY ? 'Yes' : 'No'}`);
+        console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+}

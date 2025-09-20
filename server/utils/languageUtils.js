@@ -1,6 +1,6 @@
 // Language mapping utilities
 
-export function getLanguageName(code) {
+function getLanguageName(code) {
     const languages = {
         'en': 'English',
         'hi': 'Hindi',
@@ -21,7 +21,7 @@ export function getLanguageName(code) {
     return languages[code] || 'English';
 }
 
-export function getSupportedLanguages() {
+function getSupportedLanguages() {
     return [
         { code: 'en', name: 'English', nativeName: 'English' },
         { code: 'es', name: 'Spanish', nativeName: 'Español' },
@@ -39,7 +39,13 @@ export function getSupportedLanguages() {
     ];
 }
 
-export function isLanguageSupported(code) {
+function isLanguageSupported(code) {
     const supportedCodes = getSupportedLanguages().map(lang => lang.code);
     return supportedCodes.includes(code);
 }
+
+module.exports = {
+    getLanguageName,
+    getSupportedLanguages,
+    isLanguageSupported
+};

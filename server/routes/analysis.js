@@ -1,6 +1,6 @@
-import express from 'express';
-import aiService from '../services/aiService.js';
-import { validateAnalysisRequest, validateTermRequest, validateScenarioRequest, validateQuizRequest, validateSaveRequest } from '../middleware/validation.js';
+const express = require('express');
+const aiService = require('../services/aiService.js');
+const { validateAnalysisRequest, validateTermRequest, validateScenarioRequest, validateQuizRequest, validateSaveRequest } = require('../middleware/validation.js');
 
 const router = express.Router();
 
@@ -83,4 +83,4 @@ router.post('/save', validateSaveRequest, async (req, res, next) => {
     }
 });
 
-export default router;
+module.exports = router;

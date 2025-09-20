@@ -1,14 +1,13 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { errorHandler } from './middleware/errorHandler.js';
-import { requestLogger } from './middleware/requestLogger.js';
-import { rateLimiter } from './middleware/rateLimiter.js';
-import analysisRoutes from './routes/analysis.js';
-import healthRoutes from './routes/health.js';
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+require('dotenv').config();
 
-// Load environment variables
-dotenv.config();
+const { errorHandler } = require('./middleware/errorHandler.js');
+const { requestLogger } = require('./middleware/requestLogger.js');
+const { rateLimiter } = require('./middleware/rateLimiter.js');
+const analysisRoutes = require('./routes/analysis.js');
+const healthRoutes = require('./routes/health.js');
 
 const app = express();
 
@@ -22,16 +21,18 @@ app.use(rateLimiter);
 app.use('/api/health', healthRoutes);
 app.use('/api', analysisRoutes);
 
-// Serve static files in production
+// Serve static files in production (Note: express.static() won't work on Vercel)
+// Use public directory instead for static assets
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static('dist'));
+    app.use(express.static('public'));
 
+    // SPA fallback for client-side routing
     app.get('*', (req, res) => {
-        res.sendFile(path.join(process.cwd(), 'dist', 'index.html'));
+        res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
     });
 }
 
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-export default app;
+module.exports = app;

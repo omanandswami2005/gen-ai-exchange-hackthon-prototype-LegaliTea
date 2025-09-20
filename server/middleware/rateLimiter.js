@@ -3,7 +3,7 @@
 
 const rateLimitStore = new Map();
 
-export const rateLimiter = (req, res, next) => {
+const rateLimiter = (req, res, next) => {
     const clientIP = req.ip || req.connection.remoteAddress;
     const now = Date.now();
     const windowMs = 15 * 60 * 1000; // 15 minutes
@@ -46,3 +46,5 @@ export const rateLimiter = (req, res, next) => {
 
     next();
 };
+
+module.exports = { rateLimiter };

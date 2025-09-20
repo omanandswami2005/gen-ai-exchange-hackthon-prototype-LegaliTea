@@ -1,6 +1,6 @@
 // Request validation middleware
 
-export const validateAnalysisRequest = (req, res, next) => {
+const validateAnalysisRequest = (req, res, next) => {
     const { text, documentType, language } = req.body;
 
     if (!text || typeof text !== 'string') {
@@ -28,7 +28,7 @@ export const validateAnalysisRequest = (req, res, next) => {
     next();
 };
 
-export const validateTermRequest = (req, res, next) => {
+const validateTermRequest = (req, res, next) => {
     const { term, context, language } = req.body;
 
     if (!term || typeof term !== 'string') {
@@ -50,7 +50,7 @@ export const validateTermRequest = (req, res, next) => {
     next();
 };
 
-export const validateScenarioRequest = (req, res, next) => {
+const validateScenarioRequest = (req, res, next) => {
     const { clause, documentType, language } = req.body;
 
     if (!clause || typeof clause !== 'string') {
@@ -72,7 +72,7 @@ export const validateScenarioRequest = (req, res, next) => {
     next();
 };
 
-export const validateQuizRequest = (req, res, next) => {
+const validateQuizRequest = (req, res, next) => {
     const { documentText, difficulty, language } = req.body;
 
     if (!documentText || typeof documentText !== 'string') {
@@ -94,7 +94,7 @@ export const validateQuizRequest = (req, res, next) => {
     next();
 };
 
-export const validateSaveRequest = (req, res, next) => {
+const validateSaveRequest = (req, res, next) => {
     const { email, analysis } = req.body;
 
     if (!email || typeof email !== 'string') {
@@ -112,4 +112,12 @@ export const validateSaveRequest = (req, res, next) => {
     }
 
     next();
+};
+
+module.exports = {
+    validateAnalysisRequest,
+    validateTermRequest,
+    validateScenarioRequest,
+    validateQuizRequest,
+    validateSaveRequest
 };

@@ -1,4 +1,4 @@
-import express from 'express';
+const express = require('express');
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
         uptime: process.uptime(),
         version: process.env.npm_package_version || '1.0.0',
         environment: process.env.NODE_ENV || 'development',
-        geminiConfigured: !!process.env.VITE_GEMINI_API_KEY
+        geminiConfigured: !!process.env.GEMINI_API_KEY
     });
 });
 
@@ -25,7 +25,7 @@ router.get('/detailed', (req, res) => {
         version: process.env.npm_package_version || '1.0.0',
         environment: process.env.NODE_ENV || 'development',
         services: {
-            geminiAI: !!process.env.VITE_GEMINI_API_KEY,
+            geminiAI: !!process.env.GEMINI_API_KEY,
             supabase: !!(process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY)
         },
         system: {
@@ -41,4 +41,4 @@ router.get('/detailed', (req, res) => {
     });
 });
 
-export default router;
+module.exports = router;

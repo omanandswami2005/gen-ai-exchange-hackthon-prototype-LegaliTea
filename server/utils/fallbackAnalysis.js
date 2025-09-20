@@ -1,6 +1,6 @@
 // Fallback analysis when AI service fails
 
-export function generateFallbackAnalysis(text, documentType) {
+function generateFallbackAnalysis(text, documentType) {
     const wordCount = text.split(/\s+/).length;
     const isLease = text.toLowerCase().includes('lease') || text.toLowerCase().includes('rent');
     const isNDA = text.toLowerCase().includes('non-disclosure') || text.toLowerCase().includes('confidential');
@@ -148,3 +148,5 @@ export function generateFallbackAnalysis(text, documentType) {
         ]
     };
 }
+
+module.exports = { generateFallbackAnalysis };
