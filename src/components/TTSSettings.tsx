@@ -117,7 +117,10 @@ export const TTSSettings: React.FC = () => {
             </div>
             <Switch
               checked={settings.enabled}
-              onCheckedChange={(enabled) => updateSettings({ enabled })}
+              onCheckedChange={(enabled) => {
+                updateSettings({ enabled });
+                setTimeout(() => {}, 0); // Force immediate UI update
+              }}
             />
           </div>
 

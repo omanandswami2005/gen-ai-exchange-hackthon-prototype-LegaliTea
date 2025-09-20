@@ -7,6 +7,14 @@ import { NavbarLogo } from "./AnimatedLogo";
 import { AudioSettings } from "./AudioSettings";
 import { TTSSettings } from "./TTSSettings";
 import { useAnimations } from "@/hooks/useAnimations";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface EnhancedNavBarProps {
   className?: string;
@@ -48,9 +56,34 @@ export const EnhancedNavBar: React.FC<EnhancedNavBarProps> = ({
   }, [isMobileMenuOpen]);
 
   const navItems = [
-    { icon: FileText, label: "Analyze", href: "#analyze", active: true },
-    { icon: Shield, label: "Privacy", href: "#privacy", active: false },
-    { icon: Sparkles, label: "Features", href: "#features", active: false },
+    { name: "Analyze", href: "#", icon: FileText },
+    {
+      name: "Privacy",
+      href: "#",
+      icon: Shield,
+      dialogContent: {
+        title: "Privacy Policy",
+        description: "This is our privacy policy.",
+      },
+    },
+    {
+      name: "Features",
+      href: "#",
+      icon: Sparkles,
+      dialogContent: {
+        title: "Features",
+        description: "These are our features.",
+      },
+    },
+    {
+      name: "Legal",
+      href: "#",
+      icon: Scale,
+      dialogContent: {
+        title: "Legal Information",
+        description: "This is our legal information.",
+      },
+    },
   ];
 
   return (
@@ -74,28 +107,51 @@ export const EnhancedNavBar: React.FC<EnhancedNavBarProps> = ({
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-1">
-              {navItems.map((item, index) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`
-                    flex items-center space-x-2 px-4 py-2 rounded-lg
-                    ${getAnimationClass("transition-all duration-200 ease-out")}
-                    ${getAnimationClass("hover:scale-105 hover:shadow-md")}
-                    ${
-                      item.active
-                        ? "bg-primary/10 text-primary border border-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                    }
-                    ${getAnimationClass(
-                      `animate-slide-in-right delay-${index * 100}`
-                    )}
-                  `}
-                >
-                  <item.icon className="h-4 w-4" />
-                  <span className="font-medium">{item.label}</span>
-                </a>
-              ))}
+              {navItems.map((item, index) =>
+                item.dialogContent ? (
+                  <Dialog key={item.name}>
+                    <DialogTrigger asChild>
+                      <a
+                        href={item.href}
+                        className={`
+                          flex items-center space-x-2 px-4 py-2 rounded-lg
+                          ${getAnimationClass("transition-all duration-200 ease-out")}
+                          ${getAnimationClass("hover:scale-105 hover:shadow-md")}
+                          text-muted-foreground hover:text-foreground hover:bg-accent/50
+                        `}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span className="font-medium">{item.name}</span>
+                      </a>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>{item.dialogContent.title}</DialogTitle>
+                        <DialogDescription>
+                          {item.dialogContent.description}
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className={`
+                      flex items-center space-x-2 px-4 py-2 rounded-lg
+                      ${getAnimationClass("transition-all duration-200 ease-out")}
+                      ${getAnimationClass("hover:scale-105 hover:shadow-md")}
+                      text-muted-foreground hover:text-foreground hover:bg-accent/50
+                      ${getAnimationClass(
+                        `animate-slide-in-right delay-${index * 100}`
+                      )}
+                    `}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    <span className="font-medium">{item.name}</span>
+                  </a>
+                )
+              )}
 
               {/* Divider */}
               <div className="h-6 w-px bg-border mx-2" />
@@ -134,104 +190,51 @@ export const EnhancedNavBar: React.FC<EnhancedNavBarProps> = ({
             </div>
           </div>
         </div>
+      </nav>
 
-        {/* Mobile Menu */}
-        <div
-          className={`
-            md:hidden mobile-menu overflow-hidden
-            ${getAnimationClass("transition-all duration-300 ease-out")}
-            ${isMobileMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}
-          `}
-        >
-          <div className="bg-background/95 backdrop-blur-md border-t border-border/50">
-            <div className="container mx-auto px-4 py-4 space-y-2">
-              {/* Mobile Navigation Items */}
-              {navItems.map((item, index) => (
-                <a
-                  key={item.label}
-                  href={item.href}
-                  className={`
-                    flex items-center space-x-3 px-4 py-3 rounded-lg
-                    ${getAnimationClass("transition-all duration-200 ease-out")}
-                    ${getAnimationClass("hover:scale-[1.02] active:scale-95")}
-                    ${
-                      item.active
-                        ? "bg-primary/10 text-primary border border-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
-                    }
-                    ${getAnimationClass(
-                      `animate-fade-in-up delay-${index * 50}`
-                    )}
-                  `}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="font-medium">{item.label}</span>
-                </a>
-              ))}
-
-              {/* Mobile Controls */}
-              <div
-                className={`
-                flex items-center justify-between pt-4 mt-4 border-t border-border/50
-                ${getAnimationClass("animate-fade-in-up delay-200")}
-              `}
-              >
-                <span className="text-sm text-muted-foreground">Settings</span>
-                <div className="flex items-center space-x-2">
-                  <LanguageSelector />
-                  <ThemeToggle />
-                </div>
-              </div>
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="mobile-menu fixed inset-0 z-40 bg-background/95 backdrop-blur-md pt-16">
+          <div className="container mx-auto px-4 py-8">
+            <div className="grid gap-4">
+              {navItems.map((item) =>
+                item.dialogContent ? (
+                  <Dialog key={item.name}>
+                    <DialogTrigger asChild>
+                      <a
+                        href={item.href}
+                        className="flex items-center space-x-3 p-4 rounded-lg bg-accent/20 hover:bg-accent/30 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <item.icon className="h-5 w-5" />
+                        <span className="font-medium">{item.name}</span>
+                      </a>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>{item.dialogContent.title}</DialogTitle>
+                        <DialogDescription>
+                          {item.dialogContent.description}
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  <a
+                    key={item.name}
+                    href={item.href}
+                    className="flex items-center space-x-3 p-4 rounded-lg bg-accent/20 hover:bg-accent/30 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className="font-medium">{item.name}</span>
+                  </a>
+                )
+              )}
             </div>
           </div>
         </div>
-      </nav>
-
-      {/* Mobile Menu Backdrop */}
-      {isMobileMenuOpen && (
-        <div
-          className={`
-            fixed inset-0 bg-background/50 backdrop-blur-sm z-40 md:hidden
-            ${getAnimationClass("animate-fade-in")}
-          `}
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
       )}
-
-      {/* Spacer to prevent content from hiding behind fixed navbar */}
-      <div className="h-16" />
     </>
   );
-};
-
-// Navigation context for managing active states
-export const useNavigation = () => {
-  const [activeSection, setActiveSection] = useState("analyze");
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = ["analyze", "privacy", "features"];
-      const scrollPosition = window.scrollY + 100;
-
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (
-            scrollPosition >= offsetTop &&
-            scrollPosition < offsetTop + offsetHeight
-          ) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return { activeSection, setActiveSection };
 };

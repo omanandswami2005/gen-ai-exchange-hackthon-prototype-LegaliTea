@@ -132,9 +132,9 @@ export const AudioSettings: React.FC = () => {
                     </div>
                     <Switch
                       checked={settings.sounds[sound.key]}
-                      onCheckedChange={(checked) =>
-                        setSoundEnabled(sound.key, checked)
-                      }
+                      onCheckedChange={(checked) => {
+                        setSoundEnabled(checked);
+                      }}
                     />
                   </div>
                 ))}

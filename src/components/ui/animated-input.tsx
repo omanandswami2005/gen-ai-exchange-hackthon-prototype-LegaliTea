@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Input, InputProps } from "./input";
+import { Input } from "./input";
+import type { InputProps } from "./input";
 import { Textarea } from "./textarea";
 import { useAnimations } from "@/hooks/useAnimations";
 import { cn } from "@/lib/utils";

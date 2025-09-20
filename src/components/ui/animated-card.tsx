@@ -1,9 +1,9 @@
 import React from "react";
-import { Card, CardProps } from "./card";
+import { Card } from "./card";
 import { useAnimations, useIntersectionAnimation } from "@/hooks/useAnimations";
 import { cn } from "@/lib/utils";
 
-interface AnimatedCardProps extends CardProps {
+interface AnimatedCardProps extends React.ComponentProps<"div"> {
   animation?: "fade-up" | "scale" | "slide-right" | "hover-lift" | "glow";
   delay?: number;
   stagger?: boolean;

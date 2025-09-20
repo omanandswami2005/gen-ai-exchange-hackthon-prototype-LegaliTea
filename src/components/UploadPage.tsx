@@ -30,15 +30,34 @@ import { sampleDocuments } from "@/services/documentProcessor";
 import { AnimatedLanguageText } from "./LanguageSelector";
 import { HeroLogo } from "./AnimatedLogo";
 
+// Define TypeScript interfaces for type safety
+interface AppStore {
+  uploadedFile: File | null;
+  error: string | null;
+  setError: (error: string) => void;
+  clearError: () => void;
+}
+
+interface DocumentProcessor {
+  processFile: (file: File) => Promise<string | null>;
+  processText: (text: string) => boolean;
+  validateFile: (file: File) => { valid: boolean; error?: string };
+}
+
+interface Analysis {
+  analyzeDocument: (text: string, type?: string) => void;
+}
+
 export const UploadPage: React.FC = () => {
   const [dragActive, setDragActive] = useState(false);
   const [textInput, setTextInput] = useState("");
   const [activeTab, setActiveTab] = useState("upload");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const MAX_CHAR_LIMIT = 50000;
 
-  const { uploadedFile, error, clearError } = useAppStore();
-  const { processFile, processText, validateFile } = useDocumentProcessor();
-  const { analyzeDocument } = useAnalysis();
+  const { uploadedFile, error, setError, clearError } = useAppStore() as AppStore;
+  const { processFile, processText, validateFile } = useDocumentProcessor() as DocumentProcessor;
+  const { analyzeDocument } = useAnalysis() as Analysis;
   const { playUpload, playSuccess, playError, playCompletion } = useAudioFeedback();
 
   // Handle drag events
@@ -51,6 +70,38 @@ export const UploadPage: React.FC = () => {
       setDragActive(false);
     }
   }, []);
+
+  // Process uploaded file
+  const handleFileUpload = useCallback(
+    async (file: File) => {
+      clearError();
+
+      // Validate file first
+      const validation = validateFile(file);
+      if (!validation.valid) {
+        setError(validation.error || "Invalid file.");
+        playError();
+        return;
+      }
+
+      try {
+        playUpload();
+        const extractedText = await processFile(file);
+        if (extractedText) {
+          playSuccess();
+          // Automatically start analysis
+          analyzeDocument(extractedText, getDocumentType(file.name));
+        } else {
+          setError("No text could be extracted from the file.");
+          playError();
+        }
+      } catch (error) {
+        setError("Failed to process file. Please try again.");
+        playError();
+      }
+    },
+    [clearError, setError, validateFile, processFile, analyzeDocument, playUpload, playSuccess, playError]
+  );
 
   // Handle file drop
   const handleDrop = useCallback(
@@ -65,7 +116,7 @@ export const UploadPage: React.FC = () => {
         await handleFileUpload(files[0]);
       }
     },
-    [clearError]
+    [clearError, handleFileUpload]
   );
 
   // Handle file selection
@@ -76,72 +127,63 @@ export const UploadPage: React.FC = () => {
         await handleFileUpload(files[0]);
       }
     },
-    []
+    [handleFileUpload]
   );
 
-  // Process uploaded file
-  const handleFileUpload = async (file: File) => {
-    clearError();
-
-    // Validate file first
-    const validation = validateFile(file);
-    if (!validation.valid) {
-      playError();
-      return; // Error will be set by the hook
-    }
-
-    try {
-      playUpload();
-      const extractedText = await processFile(file);
-      if (extractedText) {
-        playSuccess();
-        // Automatically start analysis
-        analyzeDocument(extractedText, getDocumentType(file.name));
-      }
-    } catch (error) {
-      console.error("File processing error:", error);
-      playError();
-    }
-  };
-
   // Handle text input
-  const handleTextSubmit = () => {
+  const handleTextSubmit = useCallback(() => {
     clearError();
+
+    if (textInput.length > MAX_CHAR_LIMIT) {
+      setError(`Text exceeds ${MAX_CHAR_LIMIT.toLocaleString()} character limit.`);
+      playError();
+      return;
+    }
+
+    if (textInput.trim().length < 50) {
+      setError("Text input must be at least 50 characters.");
+      playError();
+      return;
+    }
 
     if (processText(textInput)) {
       playUpload();
       // Automatically start analysis
       analyzeDocument(textInput);
+      playSuccess();
     } else {
+      setError("Failed to process text. Please try again.");
       playError();
     }
-  };
+  }, [textInput, clearError, setError, processText, analyzeDocument, playUpload, playSuccess, playError]);
 
   // Load sample document
-  const loadSample = (sampleKey: keyof typeof sampleDocuments) => {
-    const sampleText = sampleDocuments[sampleKey];
-    setTextInput(sampleText);
-    setActiveTab("text");
-  };
+  const loadSample = useCallback(
+    (sampleKey: keyof typeof sampleDocuments) => {
+      const sampleText = sampleDocuments[sampleKey];
+      setTextInput(sampleText);
+      setActiveTab("text");
+    },
+    []
+  );
 
   // Get document type from filename
-  const getDocumentType = (filename: string): string => {
+  const getDocumentType = useCallback((filename: string): string => {
     const name = filename.toLowerCase();
     if (name.includes("lease") || name.includes("rental")) return "lease";
     if (name.includes("nda") || name.includes("non-disclosure")) return "nda";
-    if (name.includes("contract") || name.includes("agreement"))
-      return "contract";
+    if (name.includes("contract") || name.includes("agreement")) return "contract";
     return "document";
-  };
+  }, []);
 
   // Format file size
-  const formatFileSize = (bytes: number): string => {
+  const formatFileSize = useCallback((bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -309,11 +351,11 @@ export const UploadPage: React.FC = () => {
                 />
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    {textInput.length.toLocaleString()} / 50,000 characters
+                    {textInput.length.toLocaleString()} / {MAX_CHAR_LIMIT.toLocaleString()} characters
                   </div>
                   <AnimatedButton
                     onClick={handleTextSubmit}
-                    disabled={textInput.trim().length < 50}
+                    disabled={textInput.trim().length < 50 || textInput.length > MAX_CHAR_LIMIT}
                     animation="scale"
                   >
                     Analyze Text
@@ -360,7 +402,7 @@ export const UploadPage: React.FC = () => {
             </TabsContent>
           </Tabs>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
       {/* Trust Signals */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center text-sm text-muted-foreground">

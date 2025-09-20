@@ -16,6 +16,10 @@ export const TextSelectionTTS: React.FC<TextSelectionTTSProps> = ({
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
   const { speak, settings } = useTextToSpeech();
 
+  const clearSelection = () => {
+    window.getSelection()?.removeAllRanges();
+  };
+
   useEffect(() => {
     const handleSelectionChange = () => {
       const selection = window.getSelection();
@@ -38,35 +42,40 @@ export const TextSelectionTTS: React.FC<TextSelectionTTSProps> = ({
       } else {
         setShowButton(false);
         setSelectedText("");
+        clearSelection(); // Clear selection when text is deselected
       }
     };
 
     const handleClickOutside = (event: MouseEvent) => {
-      // Hide button if clicking outside of selection or button
-      const target = event.target as HTMLElement;
-      if (!target.closest(".text-selection-tts")) {
-        setShowButton(false);
-      }
-    };
+  const target = event.target as HTMLElement;
+  // Hide button and clear selection if clicking outside of the button and its container
+  if (
+    buttonRef.current &&
+    !buttonRef.current.contains(target) &&
+    !target.closest(".text-selection-tts")
+  ) {
+    setShowButton(false);
+    clearSelection();
+  }
+};
 
     document.addEventListener("selectionchange", handleSelectionChange);
-    document.addEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside); // Use mousedown for quicker response
 
     return () => {
       document.removeEventListener("selectionchange", handleSelectionChange);
-      document.removeEventListener("click", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [clearSelection]);
 
   const handleSpeak = async () => {
     if (selectedText && settings.enabled) {
       await speak(selectedText);
-      setShowButton(false);
-
-      // Clear selection
-      window.getSelection()?.removeAllRanges();
+      // Do NOT hide button or clear selection here. The button should remain visible until user clicks outside.
     }
   };
+
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   if (!showButton || !settings.enabled) {
     return null;
@@ -86,6 +95,7 @@ export const TextSelectionTTS: React.FC<TextSelectionTTSProps> = ({
       }}
     >
       <AnimatedButton
+        ref={buttonRef}
         variant="default"
         size="sm"
         animation="scale"
