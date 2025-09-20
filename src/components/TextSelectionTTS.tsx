@@ -16,10 +16,6 @@ export const TextSelectionTTS: React.FC<TextSelectionTTSProps> = ({
   const [buttonPosition, setButtonPosition] = useState({ x: 0, y: 0 });
   const { speak, settings } = useTextToSpeech();
 
-  const clearSelection = () => {
-    window.getSelection()?.removeAllRanges();
-  };
-
   useEffect(() => {
     const handleSelectionChange = () => {
       const selection = window.getSelection();
@@ -42,31 +38,31 @@ export const TextSelectionTTS: React.FC<TextSelectionTTSProps> = ({
       } else {
         setShowButton(false);
         setSelectedText("");
-        clearSelection(); // Clear selection when text is deselected
       }
     };
 
     const handleClickOutside = (event: MouseEvent) => {
-  const target = event.target as HTMLElement;
-  // Hide button and clear selection if clicking outside of the button and its container
-  if (
-    buttonRef.current &&
-    !buttonRef.current.contains(target) &&
-    !target.closest(".text-selection-tts")
-  ) {
-    setShowButton(false);
-    clearSelection();
-  }
-};
+        const target = event.target as HTMLElement;
+        // Hide button and clear selection if clicking outside of the button and its container
+        if (
+          buttonRef.current &&
+          !buttonRef.current.contains(target) &&
+          !target.closest(".text-selection-tts") &&
+          !target.closest(".text-selection-tts *")
+        ) {
+          setShowButton(false);
+          setSelectedText("");
+        }
+      };
 
     document.addEventListener("selectionchange", handleSelectionChange);
-    document.addEventListener("mousedown", handleClickOutside); // Use mousedown for quicker response
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
       document.removeEventListener("selectionchange", handleSelectionChange);
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [clearSelection]);
+  }, []);
 
   const handleSpeak = async () => {
     if (selectedText && settings.enabled) {
@@ -98,7 +94,6 @@ export const TextSelectionTTS: React.FC<TextSelectionTTSProps> = ({
         ref={buttonRef}
         variant="default"
         size="sm"
-        animation="scale"
         onClick={handleSpeak}
         className="shadow-lg bg-primary text-primary-foreground hover:bg-primary/90"
         title={`Read selected text: "${selectedText.slice(0, 50)}${

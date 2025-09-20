@@ -23,7 +23,7 @@ export const LanguageSelector: React.FC = () => {
         variant="ghost"
         size="sm"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 h-9"
+        className="flex items-center gap-2 h-9 hover:bg-accent/50 transition-colors"
       >
         <Globe className="h-4 w-4" />
         <span className="hidden sm:inline">
@@ -37,22 +37,22 @@ export const LanguageSelector: React.FC = () => {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 z-40"
+            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
             onClick={() => setIsOpen(false)}
           />
 
           {/* Dropdown */}
-          <Card className="absolute right-0 top-full mt-2 w-64 z-50 shadow-lg">
+          <Card className="absolute right-0 top-full mt-2 w-64 z-50 shadow-lg border-border bg-card/95 backdrop-blur-sm">
             <CardContent className="p-2">
               <div className="grid gap-1 max-h-64 overflow-y-auto">
                 {SUPPORTED_LANGUAGES.map((language) => (
                   <button
                     key={language.code}
                     onClick={() => handleLanguageSelect(language)}
-                    className={`flex items-center gap-3 w-full px-3 py-2 text-left rounded-md transition-colors hover:bg-accent ${
+                    className={`flex items-center gap-3 w-full px-3 py-2 text-left rounded-md transition-all duration-200 hover:bg-accent/50 hover:shadow-sm ${
                       currentLanguage.code === language.code
-                        ? "bg-accent text-accent-foreground"
-                        : "text-foreground"
+                        ? "bg-accent text-accent-foreground shadow-sm"
+                        : "text-foreground hover:bg-accent/30"
                     }`}
                   >
                     <span className="text-lg">{language.flag}</span>
@@ -100,8 +100,8 @@ export const AnimatedLanguageText: React.FC = () => {
   }, []);
 
   return (
-    <span className="inline-flex items-center gap-1">
-      <span className="transition-all duration-500 ease-in-out">
+    <span className="inline-flex items-center gap-1 text-foreground font-semibold">
+      <span className="transition-all duration-500 ease-in-out animate-in slide-in-from-bottom-2">
         {languages[currentIndex].flag}
       </span>
       <span

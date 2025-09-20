@@ -198,8 +198,8 @@ const ANALYSIS_PROMPT = `
 
 ## 📊 **Feature Comparison**
 
-| Feature               | LegaliTea AI                         | Traditional Tools  |
-| --------------------- | ------------------------------------ | ------------------ |
+| Feature                     | LegaliTea AI                         | Traditional Tools  |
+| --------------------------- | ------------------------------------ | ------------------ |
 | **AI Analysis**       | ✅ Real Gemini API                   | ❌ Basic templates |
 | **Gamification**      | ✅ Full system with achievements     | ❌ None            |
 | **Audio Feedback**    | ✅ Procedural Web Audio API sounds   | ❌ None            |

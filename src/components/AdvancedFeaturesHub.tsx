@@ -16,7 +16,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
@@ -74,54 +74,24 @@ export const AdvancedFeaturesHub: React.FC<AdvancedFeaturesHubProps> = ({
   const { playClick, playSuccess } = useAudioFeedback();
   const { getAnimationClass } = useAnimations();
 
-  const features: FeatureCard[] = [
+  // Available features (fully functional)
+  const availableFeatures: FeatureCard[] = [
+    
+    
     {
-      id: "clause-simplification",
-      title: "Clause Simplification",
+      id: "legal-glossary",
+      title: "Legal Glossary",
       description:
-        "See complex legal text side-by-side with plain English explanations",
-      icon: <FileText className="h-6 w-6" />,
-      category: "analysis",
-      difficulty: "beginner",
-      estimatedTime: "5-10 min",
-      benefits: [
-        "Understand complex clauses instantly",
-        "Compare original vs simplified text",
-        "Navigate through document sections easily",
-      ],
-      isPopular: true,
-    },
-    {
-      id: "term-explanation",
-      title: "Smart Term Lookup",
-      description:
-        "Click any legal term for instant, context-aware definitions",
-      icon: <Search className="h-6 w-6" />,
+        "Browse a comprehensive dictionary of terms found in your document",
+      icon: <BookOpen className="h-6 w-6" />,
       category: "reference",
       difficulty: "beginner",
-      estimatedTime: "2-5 min",
+      estimatedTime: "5-15 min",
       benefits: [
-        "Instant definitions for legal terms",
-        "Context-aware explanations",
-        "Multi-language support",
+        "Comprehensive term definitions",
+        "Document-specific glossary",
+        "Export and share capabilities",
       ],
-      isNew: true,
-    },
-    {
-      id: "visual-contract-map",
-      title: "Visual Contract Map",
-      description:
-        "Transform your contract into an interactive flowchart showing relationships",
-      icon: <Map className="h-6 w-6" />,
-      category: "visualization",
-      difficulty: "intermediate",
-      estimatedTime: "10-15 min",
-      benefits: [
-        "See contract structure visually",
-        "Understand party relationships",
-        "Track deadlines and obligations",
-      ],
-      isNew: true,
     },
     {
       id: "scenario-generator",
@@ -154,22 +124,63 @@ export const AdvancedFeaturesHub: React.FC<AdvancedFeaturesHubProps> = ({
       ],
       isPopular: true,
     },
+  ];
+
+  // Coming soon features (future implementation)
+  const comingSoonFeatures: FeatureCard[] = [
     {
-      id: "legal-glossary",
-      title: "Legal Glossary",
+      id: "term-explanation",
+      title: "Smart Term Lookup",
       description:
-        "Browse a comprehensive dictionary of terms found in your document",
-      icon: <BookOpen className="h-6 w-6" />,
+        "Click any legal term for instant, context-aware definitions",
+      icon: <Search className="h-6 w-6" />,
       category: "reference",
       difficulty: "beginner",
-      estimatedTime: "5-15 min",
+      estimatedTime: "2-5 min",
       benefits: [
-        "Comprehensive term definitions",
-        "Document-specific glossary",
-        "Export and share capabilities",
+        "Instant definitions for legal terms",
+        "Context-aware explanations",
+        "Multi-language support",
       ],
+      isNew: true,
     },
+    {
+      id: "clause-simplification",
+      title: "Clause Simplification",
+      description:
+        "See complex legal text side-by-side with plain English explanations",
+      icon: <FileText className="h-6 w-6" />,
+      category: "analysis",
+      difficulty: "beginner",
+      estimatedTime: "5-10 min",
+      benefits: [
+        "Understand complex clauses instantly",
+        "Compare original vs simplified text",
+        "Navigate through document sections easily",
+      ],
+      isPopular: true,
+    },
+    {
+      id: "visual-contract-map",
+      title: "Visual Contract Map",
+      description:
+        "Transform your contract into an interactive flowchart showing relationships",
+      icon: <Map className="h-6 w-6" />,
+      category: "visualization",
+      difficulty: "intermediate",
+      estimatedTime: "10-15 min",
+      benefits: [
+        "See contract structure visually",
+        "Understand party relationships",
+        "Track deadlines and obligations",
+      ],
+      isNew: true,
+    },
+    
   ];
+
+  // Combine features based on selected category
+  const features = [...availableFeatures, ...comingSoonFeatures];
 
   const categories = [
     { id: "all", label: "All Features", icon: <Star className="h-4 w-4" /> },
@@ -423,8 +434,16 @@ export const AdvancedFeaturesHub: React.FC<AdvancedFeaturesHubProps> = ({
           <AnimatedCard
             key={feature.id}
             animation="hover-lift"
-            className="cursor-pointer group relative overflow-hidden"
-            onClick={() => handleFeatureSelect(feature.id)}
+            className={`${
+              comingSoonFeatures.some(f => f.id === feature.id)
+                ? "cursor-not-allowed opacity-75"
+                : "cursor-pointer"
+            } group relative overflow-hidden`}
+            onClick={() => {
+              if (!comingSoonFeatures.some(f => f.id === feature.id)) {
+                handleFeatureSelect(feature.id);
+              }
+            }}
           >
             <CardHeader>
               <div className="flex items-start justify-between">
@@ -450,6 +469,12 @@ export const AdvancedFeaturesHub: React.FC<AdvancedFeaturesHubProps> = ({
                       <Badge variant="secondary" className="text-xs">
                         {feature.estimatedTime}
                       </Badge>
+                      {/* Coming Soon Badge */}
+                      {comingSoonFeatures.some(f => f.id === feature.id) && (
+                        <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs">
+                          Coming Soon
+                        </Badge>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -588,6 +613,62 @@ export const AdvancedFeaturesHub: React.FC<AdvancedFeaturesHubProps> = ({
           </div>
         </CardContent>
       </AnimatedCard>
+
+      {/* Coming Soon Features */}
+      {comingSoonFeatures.length > 0 && (
+        <AnimatedCard className="border-2 border-dashed border-purple-300 bg-gradient-to-br from-purple-50 to-pink-50">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2 text-purple-700">
+              <Zap className="h-5 w-5" />
+              <span>Coming Soon</span>
+            </CardTitle>
+            <CardDescription className="text-purple-600">
+              These exciting features are currently in development and will be available in future updates
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {comingSoonFeatures.map((feature) => (
+                <div
+                  key={feature.id}
+                  className="p-4 bg-white/50 rounded-lg border border-purple-200 opacity-75"
+                >
+                  <div className="flex items-center space-x-3 mb-2">
+                    <div className={`p-2 rounded-lg ${getCategoryColor(feature.category)}`}>
+                      {feature.icon}
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-purple-800">{feature.title}</h4>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <Badge className="bg-purple-100 text-purple-700 text-xs">
+                          {feature.difficulty}
+                        </Badge>
+                        <Badge variant="secondary" className="text-xs">
+                          {feature.estimatedTime}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-purple-600 mb-3">
+                    {feature.description}
+                  </p>
+                  <div className="text-xs text-purple-500">
+                    <strong>Benefits:</strong>
+                    <ul className="mt-1 space-y-1">
+                      {feature.benefits.slice(0, 2).map((benefit, index) => (
+                        <li key={index} className="flex items-start space-x-1">
+                          <span className="text-purple-400 mt-0.5">•</span>
+                          <span>{benefit}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </AnimatedCard>
+      )}
     </div>
   );
 };

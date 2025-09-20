@@ -14,8 +14,8 @@ dotenv.config();
 
 // Initialize Gemini AI with multi-modal support
 const genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY || 'AIzaSyAHExmwYmdSR28QOfOBQiQfaQYAmeREpXI');
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-const visionModel = genAI.getGenerativeModel({ model: "gemini-1.5-pro-vision-latest" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+const visionModel = genAI.getGenerativeModel({ model: "gemini-2.5-pro-vision-latest" });
 
 // Language mapping
 function getLanguageName(code) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Scale, Sparkles } from "lucide-react";
-import { useAnimations, useTypewriter } from "@/hooks/useAnimations";
+import { Scale, Sparkles, Coffee } from "lucide-react";
+import { useAnimations } from "@/hooks/useAnimations";
 
 interface AnimatedLogoProps {
   size?: "sm" | "md" | "lg" | "xl";
@@ -32,13 +32,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const { getAnimationClass } = useAnimations();
 
-  // Typewriter effect for text
-  const { displayText, startTyping, isComplete } = useTypewriter(
-    "LegaliTea",
-    100,
-    1000,
-    showText
-  );
+  // Typewriter effect disabled for stable logo
 
   // Size configurations
   const sizeConfig = {
@@ -104,13 +98,12 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
       setTimeout(() => {
         setAnimationStage(stage);
         if (stage === 3) generateSteamParticles();
-        if (stage === 4 && showText) startTyping();
         if (stage === 5) onAnimationComplete?.();
       }, delay)
     );
 
     return () => timeouts.forEach(clearTimeout);
-  }, [autoStart, showText, startTyping, onAnimationComplete]);
+  }, [autoStart, showText, onAnimationComplete]);
 
   // Hover effect for steam
   useEffect(() => {
@@ -133,7 +126,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
   return (
     <div
       className={`
-        flex items-center ${config.container} cursor-pointer select-none
+        flex items-center ${config.container} cursor-pointer
         ${className}
       `}
       onMouseEnter={() => setIsHovered(true)}
@@ -152,8 +145,8 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
             }
             ${
               animationStage >= 2
-                ? "text-transparent bg-gradient-to-br from-brand-blue via-brand-green to-brand-gold bg-clip-text"
-                : "text-brand-blue"
+                ? "text-[#ff6e00] bg-gradient-to-br from-amber-600 via-orange-500 to-amber-700 bg-clip-text"
+                : "text-amber-600"
             }
             ${getAnimationClass("transition-all duration-500 ease-out")}
             ${
@@ -178,7 +171,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
         {/* Decorative Sparkle */}
         <Sparkles
           className={`
-            absolute -top-1 -right-1 h-3 w-3 text-brand-gold
+            absolute -top-1 -right-1 h-3 w-3 text-amber-500
             ${
               animationStage >= 2
                 ? getAnimationClass("animate-ping opacity-75")
@@ -195,7 +188,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
               <div
                 key={particle.id}
                 className={`
-                  absolute w-1 h-1 bg-brand-blue/30 rounded-full
+                  absolute w-1 h-1 bg-amber-500/30 rounded-full
                   ${getAnimationClass("animate-steam-float")}
                 `}
                 style={{
@@ -213,7 +206,7 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
           <div
             className={`
               absolute inset-0 rounded-full
-              bg-gradient-to-br from-brand-blue/20 via-brand-green/20 to-brand-gold/20
+              bg-gradient-to-br from-amber-500/20 via-orange-500/20 to-amber-600/20
               ${getAnimationClass("animate-ping")}
               blur-sm -z-10
             `}
@@ -229,39 +222,23 @@ export const AnimatedLogo: React.FC<AnimatedLogoProps> = ({
             <h1
               className={`
                 ${config.text} font-bold
-                ${
-                  animationStage >= 4
-                    ? "bg-gradient-to-r from-brand-blue via-brand-green to-brand-gold bg-clip-text text-transparent"
-                    : "text-foreground"
-                }
+                bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent
                 ${getAnimationClass("transition-all duration-500 ease-out")}
+                drop-shadow-sm
               `}
               style={{
                 backgroundSize: "200% 200%",
-                animation:
-                  animationStage >= 4
-                    ? `${getAnimationClass(
-                        "logo-gradient"
-                      )} 3s ease-in-out infinite`
-                    : undefined,
+                animation: `${getAnimationClass("logo-gradient")} 3s ease-in-out infinite`,
               }}
             >
-              {showText ? displayText : "LegaliTea"}
+              LegaliTea
             </h1>
 
-            {/* Typewriter Cursor */}
-            {showText && !isComplete && (
-              <span
-                className={`
-                  inline-block w-0.5 h-5 bg-primary ml-1
-                  ${getAnimationClass("animate-pulse")}
-                `}
-              />
-            )}
+            {/* Typewriter Cursor - Removed since effect is disabled */}
           </div>
 
           {/* Subtitle */}
-          {showSubtext && animationStage >= 4 && (
+          {showSubtext && (
             <span
               className={`
                 ${config.subtext} text-muted-foreground -mt-1
@@ -286,7 +263,7 @@ export const NavbarLogo: React.FC<{ className?: string }> = ({
       size="md"
       showText={true}
       showSubtext={true}
-      autoStart={false}
+      autoStart={true}
       className={className}
     />
   );

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Volume2, VolumeX, Play, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import {
@@ -18,6 +17,8 @@ export const AudioSettings: React.FC = () => {
     useAudioFeedback();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [switchKey, setSwitchKey] = useState(0);
+  const [sliderKey, setSliderKey] = useState(0);
 
   const soundTypes = [
     {
@@ -49,7 +50,6 @@ export const AudioSettings: React.FC = () => {
         <AnimatedButton
           variant="ghost"
           size="sm"
-          animation="scale"
           className="h-9 w-9 p-0"
         >
           {settings.enabled ? (
@@ -78,7 +78,14 @@ export const AudioSettings: React.FC = () => {
                 Play sounds for user interactions
               </p>
             </div>
-            <Switch checked={settings.enabled} onCheckedChange={setEnabled} />
+            <Switch
+              key={`master-${switchKey}`}
+              checked={settings.enabled}
+              onCheckedChange={(checked) => {
+                setEnabled(checked);
+                setSwitchKey(prev => prev + 1);
+              }}
+            />
           </div>
 
           {settings.enabled && (
@@ -94,8 +101,12 @@ export const AudioSettings: React.FC = () => {
                   </span>
                 </div>
                 <Slider
+                  key={`volume-${sliderKey}`}
                   value={[settings.volume]}
-                  onValueChange={([value]) => setVolume(value)}
+                  onValueChange={([value]) => {
+                    setVolume(value);
+                    setSliderKey(prev => prev + 1);
+                  }}
                   max={1}
                   min={0}
                   step={0.1}
@@ -119,7 +130,6 @@ export const AudioSettings: React.FC = () => {
                         <AnimatedButton
                           variant="ghost"
                           size="sm"
-                          animation="scale"
                           className="h-6 w-6 p-0"
                           onClick={() => testSound(sound.key)}
                         >
@@ -131,9 +141,11 @@ export const AudioSettings: React.FC = () => {
                       </p>
                     </div>
                     <Switch
+                      key={`${sound.key}-${switchKey}`}
                       checked={settings.sounds[sound.key]}
                       onCheckedChange={(checked) => {
-                        setSoundEnabled(checked);
+                        setSoundEnabled(sound.key, checked);
+                        setSwitchKey(prev => prev + 1);
                       }}
                     />
                   </div>

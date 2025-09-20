@@ -37,7 +37,7 @@ function App() {
               {/* Enhanced Navigation Bar */}
               <EnhancedNavBar />
 
-              <main className="max-w-7xl mx-auto">
+              <main className="max-w-7xl mx-auto pt-20">
                 {/* App content based on current stage */}
                 {processingStage === "upload" && !analysisResult && (
                   <UploadPage />

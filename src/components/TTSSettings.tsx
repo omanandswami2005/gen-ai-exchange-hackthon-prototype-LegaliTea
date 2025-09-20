@@ -32,6 +32,8 @@ export const TTSSettings: React.FC = () => {
   } = useTextToSpeech();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [switchKey, setSwitchKey] = useState(0);
+  const [sliderKey, setSliderKey] = useState(0);
 
   const handleVoiceChange = (voiceName: string) => {
     updateSettings({ voice: voiceName });
@@ -39,14 +41,17 @@ export const TTSSettings: React.FC = () => {
 
   const handleRateChange = ([rate]: number[]) => {
     updateSettings({ rate });
+    setSliderKey(prev => prev + 1);
   };
 
   const handlePitchChange = ([pitch]: number[]) => {
     updateSettings({ pitch });
+    setSliderKey(prev => prev + 1);
   };
 
   const handleVolumeChange = ([volume]: number[]) => {
     updateSettings({ volume });
+    setSliderKey(prev => prev + 1);
   };
 
   const handleTestVoice = async () => {
@@ -116,10 +121,11 @@ export const TTSSettings: React.FC = () => {
               </p>
             </div>
             <Switch
+              key={switchKey}
               checked={settings.enabled}
               onCheckedChange={(enabled) => {
                 updateSettings({ enabled });
-                setTimeout(() => {}, 0); // Force immediate UI update
+                setSwitchKey(prev => prev + 1); // Force re-render
               }}
             />
           </div>
@@ -173,6 +179,7 @@ export const TTSSettings: React.FC = () => {
                   </span>
                 </div>
                 <Slider
+                  key={`rate-${sliderKey}`}
                   value={[settings.rate]}
                   onValueChange={handleRateChange}
                   max={2}
@@ -195,6 +202,7 @@ export const TTSSettings: React.FC = () => {
                   </span>
                 </div>
                 <Slider
+                  key={`pitch-${sliderKey}`}
                   value={[settings.pitch]}
                   onValueChange={handlePitchChange}
                   max={2}
@@ -217,6 +225,7 @@ export const TTSSettings: React.FC = () => {
                   </span>
                 </div>
                 <Slider
+                  key={`volume-${sliderKey}`}
                   value={[settings.volume]}
                   onValueChange={handleVolumeChange}
                   max={1}

@@ -1,20 +1,42 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import {
+  GoogleGenAI,
+} from '@google/genai';
 import { getLanguageName } from '../utils/languageUtils.js';
 import { generateFallbackAnalysis } from '../utils/fallbackAnalysis.js';
+import dotenv from 'dotenv';
+dotenv.config();
 
 class AIService {
     constructor() {
-        this.genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY || 'AIzaSyAHExmwYmdSR28QOfOBQiQfaQYAmeREpXI');
-        this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        this.visionModel = this.genAI.getGenerativeModel({ model: "gemini-1.5-pro-vision-latest" });
+        this.ai = new GoogleGenAI({
+            apiKey: process.env.GEMINI_API_KEY || 'AIzaSyAHExmwYmdSR28QOfOBQiQfaQYAmeREpXI',
+        });
+        this.model = 'gemini-2.5-flash';
     }
 
     async analyzeDocument(text, documentType = 'document', language = 'en') {
         try {
             const prompt = this.buildAnalysisPrompt(text, language);
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            const analysisText = response.text();
+            const contents = [
+                {
+                    role: 'user',
+                    parts: [
+                        {
+                            text: prompt,
+                        },
+                    ],
+                },
+            ];
+
+            const response = await this.ai.models.generateContentStream({
+                model: this.model,
+                contents,
+            });
+
+            let analysisText = '';
+            for await (const chunk of response) {
+                analysisText += chunk.text;
+            }
 
             // Clean up the response to extract JSON
             let jsonText = analysisText.trim();
@@ -45,9 +67,27 @@ class AIService {
     async explainTerm(term, context, documentType, language = 'en') {
         try {
             const prompt = this.buildTermExplanationPrompt(term, context, documentType, language);
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            let explanationText = response.text().trim();
+            const contents = [
+                {
+                    role: 'user',
+                    parts: [
+                        {
+                            text: prompt,
+                        },
+                    ],
+                },
+            ];
+
+            const response = await this.ai.models.generateContentStream({
+                model: this.model,
+                contents,
+            });
+
+            let explanationText = '';
+            for await (const chunk of response) {
+                explanationText += chunk.text;
+            }
+            explanationText = explanationText.trim();
 
             // Clean up JSON response
             if (explanationText.startsWith('```json')) {
@@ -72,9 +112,27 @@ class AIService {
     async generateScenarios(clause, documentType, language = 'en') {
         try {
             const prompt = this.buildScenarioPrompt(clause, documentType, language);
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            let scenarioText = response.text().trim();
+            const contents = [
+                {
+                    role: 'user',
+                    parts: [
+                        {
+                            text: prompt,
+                        },
+                    ],
+                },
+            ];
+
+            const response = await this.ai.models.generateContentStream({
+                model: this.model,
+                contents,
+            });
+
+            let scenarioText = '';
+            for await (const chunk of response) {
+                scenarioText += chunk.text;
+            }
+            scenarioText = scenarioText.trim();
 
             // Clean up JSON response
             if (scenarioText.startsWith('```json')) {
@@ -102,9 +160,27 @@ class AIService {
     async generateQuiz(documentText, difficulty = 'medium', language = 'en') {
         try {
             const prompt = this.buildQuizPrompt(documentText, difficulty, language);
-            const result = await this.model.generateContent(prompt);
-            const response = await result.response;
-            let quizText = response.text().trim();
+            const contents = [
+                {
+                    role: 'user',
+                    parts: [
+                        {
+                            text: prompt,
+                        },
+                    ],
+                },
+            ];
+
+            const response = await this.ai.models.generateContentStream({
+                model: this.model,
+                contents,
+            });
+
+            let quizText = '';
+            for await (const chunk of response) {
+                quizText += chunk.text;
+            }
+            quizText = quizText.trim();
 
             // Clean up JSON response
             if (quizText.startsWith('```json')) {

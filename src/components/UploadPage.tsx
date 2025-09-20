@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   File,
   FileImage,
+  Coffee,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -186,19 +187,23 @@ export const UploadPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pt-20">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="flex justify-center mb-6">
+        {/* <div className="flex justify-center mb-6">
           <HeroLogo />
+        </div> */}
+        <div className="flex items-center justify-center mb-4">
+          <Coffee className="h-10 w-10 text-amber-600 mr-4" />
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-amber-600 via-orange-500 to-amber-700 bg-clip-text text-transparent">
+            Understand any legal document in <AnimatedLanguageText />
+          </h1>
+          <Coffee className="h-10 w-10 text-amber-600 ml-4" />
         </div>
-        <h1 className="text-4xl font-bold text-foreground mb-4">
-          Understand any legal document in <AnimatedLanguageText />
-        </h1>
-        <p className="text-lg text-muted-foreground mb-2">
+        <p className="text-lg text-amber-700 mb-2 font-medium">
           Upload your contract, lease, or legal document to get started
         </p>
-        <div className="flex items-center justify-center gap-2 text-sm text-success">
+        <div className="flex items-center justify-center gap-2 text-sm text-green-700">
           <CheckCircle2 className="h-4 w-4" />
           <span>Your document stays private and secure</span>
         </div>
@@ -356,7 +361,6 @@ export const UploadPage: React.FC = () => {
                   <AnimatedButton
                     onClick={handleTextSubmit}
                     disabled={textInput.trim().length < 50 || textInput.length > MAX_CHAR_LIMIT}
-                    animation="scale"
                   >
                     Analyze Text
                   </AnimatedButton>
@@ -372,7 +376,6 @@ export const UploadPage: React.FC = () => {
                     size="sm"
                     onClick={() => loadSample("lease")}
                     className="justify-start"
-                    animation="lift"
                   >
                     <FileText className="h-4 w-4 mr-2" />
                     Sample Lease
@@ -382,7 +385,6 @@ export const UploadPage: React.FC = () => {
                     size="sm"
                     onClick={() => loadSample("nda")}
                     className="justify-start"
-                    animation="lift"
                   >
                     <File className="h-4 w-4 mr-2" />
                     Sample NDA
@@ -392,7 +394,6 @@ export const UploadPage: React.FC = () => {
                     size="sm"
                     onClick={() => loadSample("contract")}
                     className="justify-start"
-                    animation="lift"
                   >
                     <FileImage className="h-4 w-4 mr-2" />
                     Sample Contract
