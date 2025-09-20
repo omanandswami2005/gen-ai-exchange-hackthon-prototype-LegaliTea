@@ -3,11 +3,10 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "./lib/queryClient";
 import { useAppStore } from "./stores/appStore";
 import { useDevHelpers } from "./stores/devHelpers";
-import { useState } from "react";
 import { UploadPage } from "./components/UploadPage";
 import { ProcessingPage } from "./components/ProcessingPage";
 import { ResultsPage } from "./components/ResultsPage";
-import { SaveAnalysis } from "./components/SaveAnalysis";
+import { SaveAnalysisComingSoon } from "./components/SaveAnalysisComingSoon";
 import { LegalDisclaimer, TrustSignals } from "./components/LegalDisclaimer";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ThemeToggle } from "./components/ThemeToggle";
@@ -20,7 +19,6 @@ import { DashboardResultsPage } from "./components/DashboardResultsPage";
 import { EnhancedNavBar } from "./components/EnhancedNavBar";
 import { TextSelectionTTS } from "./components/TextSelectionTTS";
 import { DocumentPreview } from "./components/DocumentPreview";
-import { SavedAnalysesSidebar } from "./components/SavedAnalysesSidebar";
 
 // Import dev helpers in development
 if (import.meta.env.DEV) {
@@ -29,7 +27,6 @@ if (import.meta.env.DEV) {
 
 function App() {
   const { processingStage, analysisResult, showPreview, previewText, previewFileName, setProcessingStage } = useAppStore();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const devHelpers = useDevHelpers();
 
   return (
@@ -67,7 +64,7 @@ function App() {
                 {processingStage === "complete" && analysisResult && (
                   <div className="space-y-6">
                     <DashboardResultsPage />
-                    <SaveAnalysis />
+                    <SaveAnalysisComingSoon />
                   </div>
                 )}
 

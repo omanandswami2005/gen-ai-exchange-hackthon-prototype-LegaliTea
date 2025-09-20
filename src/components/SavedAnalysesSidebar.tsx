@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAppStore } from "@/stores/appStore";
 import { storageService } from "@/services/supabaseClient";
+import { fetchAnalysesRateLimiter, createEmailIdentifier } from "@/services/rateLimiter";
 import type { SummaryRecord } from "@/services/supabaseClient";
 
 interface SavedAnalysesSidebarProps {
@@ -41,6 +42,19 @@ export const SavedAnalysesSidebar: React.FC<SavedAnalysesSidebarProps> = ({
 
     if (!validateEmail(email)) {
       setEmailError("Please enter a valid email address");
+      return;
+    }
+
+    // Check rate limit
+    const emailIdentifier = createEmailIdentifier(email.trim());
+    const rateLimitInfo = fetchAnalysesRateLimiter.getRateLimitInfo(emailIdentifier);
+
+    if (!rateLimitInfo.isAllowed) {
+      const resetTime = new Date(rateLimitInfo.resetTime);
+      const timeUntilReset = Math.ceil((resetTime.getTime() - Date.now()) / 1000 / 60);
+      setEmailError(
+        `Rate limit exceeded. Please wait ${timeUntilReset} minute(s) before trying again.`
+      );
       return;
     }
 

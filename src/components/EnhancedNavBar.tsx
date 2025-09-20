@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Menu, X, Scale, FileText, Shield, Sparkles } from "lucide-react";
+import { Menu, X, Scale, FileText, Shield, Sparkles, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./ThemeToggle";
 import { LanguageSelector } from "./LanguageSelector";
@@ -308,6 +308,26 @@ export const EnhancedNavBar: React.FC<EnhancedNavBarProps> = ({
                   </a>
                 )
               )}
+
+              {/* Saved Analyses Button - Coming Soon */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled
+                  className={`
+                    flex items-center space-x-2 px-3 py-2 rounded-lg
+                    ${getAnimationClass("transition-all duration-200 ease-out")}
+                    text-muted-foreground/60 cursor-not-allowed
+                  `}
+                >
+                  <History className="h-4 w-4" />
+                  <span className="font-medium">Saved</span>
+                </Button>
+                <div className="absolute -top-1 -right-1 bg-amber-500 text-white text-xs px-1 py-0.5 rounded-full font-bold">
+                  Soon
+                </div>
+              </div>
 
               {/* Divider */}
               <div className="h-6 w-px bg-border mx-2" />
