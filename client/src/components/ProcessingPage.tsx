@@ -1,13 +1,80 @@
 import React, { useEffect, useState } from "react";
-import { Loader2, FileText, Brain, CheckCircle2, Sparkles, Clock, Shield } from "lucide-react";
+import { Loader2, FileText, Brain, CheckCircle2, Sparkles, Clock, Shield, Zap, Target, TrendingUp } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAppStore } from "@/stores/appStore";
 import { useProcessingMessage } from "@/stores/selectors";
+
+// Animated typing text component
+const AnimatedText: React.FC<{ text: string; delay?: number }> = ({ text, delay = 0 }) => {
+  const [displayText, setDisplayText] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (delay > 0) {
+      const timer = setTimeout(() => {
+        if (currentIndex < text.length) {
+          const timeout = setTimeout(() => {
+            setDisplayText(prev => prev + text[currentIndex]);
+            setCurrentIndex(prev => prev + 1);
+          }, 50);
+          return () => clearTimeout(timeout);
+        }
+      }, delay);
+      return () => clearTimeout(timer);
+    } else {
+      if (currentIndex < text.length) {
+        const timeout = setTimeout(() => {
+          setDisplayText(prev => prev + text[currentIndex]);
+          setCurrentIndex(prev => prev + 1);
+        }, 50);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [currentIndex, text, delay]);
+
+  return (
+    <span className="inline-block">
+      {displayText}
+      {currentIndex < text.length && (
+        <span className="animate-pulse text-primary">|</span>
+      )}
+    </span>
+  );
+};
+
+// Rotating messages component
+const RotatingMessages: React.FC = () => {
+  const messages = [
+    "🔍 Scanning your document for key insights...",
+    "🧠 Our AI is analyzing complex legal language...",
+    "⚡ Identifying potential risks and opportunities...",
+    "📊 Extracting actionable recommendations...",
+    "✨ Translating legalese into plain English...",
+    "🎯 Finding the most important clauses...",
+    "🚀 Preparing your comprehensive analysis..."
+  ];
+
+  const [currentMessageIndex, setCurrentMessageIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentMessageIndex(prev => (prev + 1) % messages.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [messages.length]);
+
+  return (
+    <div className="h-6 flex items-center justify-center">
+      <AnimatedText text={messages[currentMessageIndex]} />
+    </div>
+  );
+};
 
 export const ProcessingPage: React.FC = () => {
   const { processingStage, progress } = useAppStore();
   const message = useProcessingMessage();
   const [pulseIntensity, setPulseIntensity] = useState(1);
+  const [showRoundLoader, setShowRoundLoader] = useState(false);
 
   // Create dynamic pulse effect
   useEffect(() => {
@@ -17,37 +84,121 @@ export const ProcessingPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Show round loader after a delay
+  useEffect(() => {
+    const timer = setTimeout(() => setShowRoundLoader(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Circular progress indicator component
+  const CircularProgress: React.FC<{ progress: number; size?: number; strokeWidth?: number }> = ({
+    progress,
+    size = 120,
+    strokeWidth = 8
+  }) => {
+    const radius = (size - strokeWidth) / 2;
+    const circumference = radius * 2 * Math.PI;
+    const strokeDasharray = circumference;
+    const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+    return (
+      <div className="relative" style={{ width: size, height: size }}>
+        <svg
+          className="transform -rotate-90"
+          width={size}
+          height={size}
+        >
+          {/* Background circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            className="text-muted/20"
+          />
+          {/* Progress circle */}
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            stroke="currentColor"
+            strokeWidth={strokeWidth}
+            fill="transparent"
+            strokeDasharray={strokeDasharray}
+            strokeDashoffset={strokeDashoffset}
+            strokeLinecap="round"
+            className="text-primary transition-all duration-1000 ease-out"
+            style={{
+              filter: 'drop-shadow(0 0 6px rgba(59, 130, 246, 0.5))'
+            }}
+          />
+        </svg>
+        {/* Center content */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-primary">{Math.round(progress)}%</div>
+            <div className="text-xs text-muted-foreground">Complete</div>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   const getStageIcon = () => {
     switch (processingStage) {
       case "extract":
         return (
           <div className="relative">
-            <FileText className="h-12 w-12 text-blue-500 animate-pulse" />
-            <div className="absolute -top-1 -right-1">
-              <div className="w-4 h-4 bg-blue-400 rounded-full animate-ping opacity-75"></div>
+            <div className="relative">
+              <FileText className="h-12 w-12 text-blue-500 animate-pulse" />
+              <div className="absolute -top-1 -right-1">
+                <div className="w-4 h-4 bg-blue-400 rounded-full animate-ping opacity-75"></div>
+              </div>
             </div>
+            {showRoundLoader && (
+              <div className="mt-4">
+                <CircularProgress progress={progress} size={80} strokeWidth={6} />
+              </div>
+            )}
           </div>
         );
       case "analyze":
         return (
           <div className="relative">
-            <Brain className="h-12 w-12 text-purple-500 animate-pulse" style={{ transform: `scale(${pulseIntensity})` }} />
-            <div className="absolute inset-0 bg-purple-400 rounded-full animate-ping opacity-20"></div>
-            <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-yellow-400 animate-bounce" />
+            <div className="relative">
+              <Brain className="h-12 w-12 text-purple-500 animate-pulse" style={{ transform: `scale(${pulseIntensity})` }} />
+              <div className="absolute inset-0 bg-purple-400 rounded-full animate-ping opacity-20"></div>
+              <Sparkles className="absolute -top-2 -right-2 h-6 w-6 text-yellow-400 animate-bounce" />
+            </div>
+            <div className="mt-4">
+              <CircularProgress progress={progress} size={80} strokeWidth={6} />
+            </div>
           </div>
         );
       case "complete":
         return (
           <div className="relative">
-            <CheckCircle2 className="h-12 w-12 text-green-500 animate-bounce" />
-            <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-30"></div>
+            <div className="relative">
+              <CheckCircle2 className="h-12 w-12 text-green-500 animate-bounce" />
+              <div className="absolute inset-0 bg-green-400 rounded-full animate-ping opacity-30"></div>
+            </div>
+            <div className="mt-4">
+              <CircularProgress progress={100} size={80} strokeWidth={6} />
+            </div>
           </div>
         );
       default:
         return (
           <div className="relative">
-            <Loader2 className="h-12 w-12 text-amber-500 animate-spin" />
-            <div className="absolute inset-0 border-4 border-amber-200 rounded-full animate-pulse opacity-50"></div>
+            <div className="relative">
+              <Loader2 className="h-12 w-12 text-amber-500 animate-spin" />
+              <div className="absolute inset-0 border-4 border-amber-200 rounded-full animate-pulse opacity-50"></div>
+            </div>
+            <div className="mt-4">
+              <CircularProgress progress={progress} size={80} strokeWidth={6} />
+            </div>
           </div>
         );
     }
@@ -80,8 +231,16 @@ export const ProcessingPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <Card>
+    <div className="max-w-2xl mx-auto relative">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-10 left-10 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-30"></div>
+        <div className="absolute top-20 right-20 w-3 h-3 bg-purple-400 rounded-full animate-pulse opacity-20"></div>
+        <div className="absolute bottom-20 left-20 w-2 h-2 bg-green-400 rounded-full animate-bounce opacity-25"></div>
+        <div className="absolute bottom-10 right-10 w-4 h-4 bg-yellow-400 rounded-full animate-pulse opacity-15"></div>
+      </div>
+
+      <Card className="relative backdrop-blur-sm bg-white/95 dark:bg-gray-900/95 border-2 border-gradient-to-r from-blue-200 via-purple-200 to-green-200 dark:from-blue-800 dark:via-purple-800 dark:to-green-800">
         <CardContent className="pt-8 pb-8">
           <div className="text-center space-y-6">
             {/* Icon */}
@@ -95,24 +254,54 @@ export const ProcessingPage: React.FC = () => {
               <p className="text-muted-foreground">{getTimeEstimate()}</p>
             </div>
 
-            {/* Enhanced Progress Bar */}
+            {/* Engaging rotating messages */}
+            <RotatingMessages />
+
+            {/* Enhanced Progress Bar with Multiple Animations */}
             <div className="w-full max-w-md mx-auto space-y-3">
-              <div className="w-full bg-muted dark:bg-muted/50 rounded-full h-4 overflow-hidden shadow-inner">
+              <div className="w-full bg-muted dark:bg-muted/50 rounded-full h-6 overflow-hidden shadow-inner relative">
+                {/* Background shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-pulse"></div>
+
+                {/* Main progress bar */}
                 <div
-                  className="bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 h-4 rounded-full transition-all duration-1000 ease-out shadow-lg relative overflow-hidden"
+                  className="bg-gradient-to-r from-blue-500 via-purple-500 to-green-500 h-6 rounded-full transition-all duration-1000 ease-out shadow-lg relative overflow-hidden"
                   style={{ width: `${Math.max(progress, 5)}%` }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
-                  <div className="absolute top-0 left-0 h-full w-8 bg-white/30 animate-pulse rounded-full"></div>
+                  {/* Animated shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
+
+                  {/* Moving light effect */}
+                  <div className="absolute top-0 left-0 h-full w-8 bg-white/40 animate-pulse rounded-full"
+                       style={{
+                         animation: 'slide 2s ease-in-out infinite',
+                         transform: `translateX(${Math.max(progress - 10, 0)}%)`
+                       }}></div>
+
+                  {/* Particle effects */}
+                  <div className="absolute top-1 right-2 w-1 h-1 bg-white rounded-full animate-ping opacity-60"></div>
+                  <div className="absolute top-3 right-4 w-1 h-1 bg-white rounded-full animate-pulse opacity-40"></div>
                 </div>
               </div>
+
+              {/* Progress indicators */}
               <div className="flex justify-between items-center text-xs">
                 <span className="text-muted-foreground font-medium">0%</span>
                 <div className="flex items-center space-x-2">
                   <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                   <span className="font-bold text-primary text-sm">{Math.round(progress)}%</span>
+                  <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
                 </div>
                 <span className="text-muted-foreground font-medium">100%</span>
+              </div>
+
+              {/* Additional loading indicators */}
+              <div className="flex justify-center space-x-4 mt-2">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 bg-green-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
               </div>
             </div>
 
@@ -234,7 +423,7 @@ export const ProcessingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Enhanced Confidence Building */}
+            {/* Enhanced Confidence Building with More Icons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs max-w-lg mx-auto">
               <div className="flex flex-col items-center space-y-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800 transition-all duration-300 hover:scale-105">
                 <div className="w-8 h-8 bg-green-100 dark:bg-green-900/50 rounded-full flex items-center justify-center">
@@ -256,11 +445,27 @@ export const ProcessingPage: React.FC = () => {
 
               <div className="flex flex-col items-center space-y-2 p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800 transition-all duration-300 hover:scale-105">
                 <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900/50 rounded-full flex items-center justify-center">
-                  <Clock className="h-4 w-4 text-purple-600 dark:text-purple-400 animate-pulse" />
+                  <Zap className="h-4 w-4 text-purple-600 dark:text-purple-400 animate-pulse" />
                 </div>
                 <p className="text-center text-purple-700 dark:text-purple-300 font-medium">
-                  Fast Results
+                  Lightning Fast
                 </p>
+              </div>
+            </div>
+
+            {/* Additional animated elements */}
+            <div className="flex justify-center items-center space-x-8 mt-6">
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Target className="h-4 w-4 text-blue-500 animate-pulse" />
+                <span>Processing</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <TrendingUp className="h-4 w-4 text-green-500 animate-bounce" />
+                <span>Analyzing</span>
+              </div>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <Sparkles className="h-4 w-4 text-yellow-500 animate-spin" />
+                <span>Optimizing</span>
               </div>
             </div>
           </div>
