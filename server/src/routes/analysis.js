@@ -61,26 +61,26 @@ router.post('/generate-quiz', validateQuizRequest, async (req, res, next) => {
 });
 
 // Save analysis endpoint
-router.post('/save', validateSaveRequest, async (req, res, next) => {
-    try {
-        const { email, analysis } = req.body;
+// router.post('/save', validateSaveRequest, async (req, res, next) => {
+//     try {
+//         const { email, analysis } = req.body;
 
-        // For now, simulate saving to database
-        // In a real implementation, you would save to Supabase here
-        const mockId = Math.random().toString(36).substring(2, 15);
-        const expiresAt = new Date();
-        expiresAt.setHours(expiresAt.getHours() + 24);
+//         // For now, simulate saving to database
+//         // In a real implementation, you would save to Supabase here
+//         const mockId = Math.random().toString(36).substring(2, 15);
+//         const expiresAt = new Date();
+//         expiresAt.setHours(expiresAt.getHours() + 24);
 
-        console.log(`Saving analysis for ${email} with ID: ${mockId}`);
+//         console.log(`Saving analysis for ${email} with ID: ${mockId}`);
 
-        res.json({
-            id: mockId,
-            expires_at: expiresAt.toISOString(),
-            message: 'Analysis saved successfully'
-        });
-    } catch (error) {
-        next(error);
-    }
-});
+//         res.json({
+//             id: mockId,
+//             expires_at: expiresAt.toISOString(),
+//             message: 'Analysis saved successfully'
+//         });
+//     } catch (error) {
+//         next(error);
+//     }
+// });
 
 export default router;

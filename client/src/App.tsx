@@ -2,19 +2,12 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "./lib/queryClient";
 import { useAppStore } from "./stores/appStore";
-import { useDevHelpers } from "./stores/devHelpers";
 import { UploadPage } from "./components/UploadPage";
 import { ProcessingPage } from "./components/ProcessingPage";
-import { ResultsPage } from "./components/ResultsPage";
 import { SaveAnalysisComingSoon } from "./components/SaveAnalysisComingSoon";
 import { LegalDisclaimer, TrustSignals } from "./components/LegalDisclaimer";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { ThemeToggle } from "./components/ThemeToggle";
 import { LanguageProvider } from "./contexts/LanguageContext";
-import {
-  LanguageSelector,
-  AnimatedLanguageText,
-} from "./components/LanguageSelector";
 import { DashboardResultsPage } from "./components/DashboardResultsPage";
 import { EnhancedNavBar } from "./components/EnhancedNavBar";
 import { TextSelectionTTS } from "./components/TextSelectionTTS";
@@ -27,7 +20,6 @@ if (import.meta.env.DEV) {
 
 function App() {
   const { processingStage, analysisResult, showPreview, previewText, previewFileName, setProcessingStage } = useAppStore();
-  const devHelpers = useDevHelpers();
 
   return (
     <ThemeProvider>
@@ -48,6 +40,7 @@ function App() {
                   <DocumentPreview
                     extractedText={previewText}
                     fileName={previewFileName}
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     onConfirm={(editedText) => {
                       setProcessingStage("analyze");
                       // The analysis will be triggered by the DocumentPreview component

@@ -69,7 +69,7 @@ export const useDocumentStats = () => {
         confidence: state.analysisResult.summary.confidence,
       };
     },
-    (a, b) => {
+    (a: unknown, b: unknown): boolean => {
       // Custom equality function to prevent unnecessary re-renders
       if (!a && !b) return true;
       if (!a || !b) return false;

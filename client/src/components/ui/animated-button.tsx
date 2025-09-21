@@ -8,10 +8,11 @@ interface AnimatedButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEleme
   loading?: boolean;
   success?: boolean;
   error?: boolean;
+  animation?: "scale" | "bounce" | "pulse" | "none";
 }
 
 export const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButtonProps>(
-  ({ className, children, variant = "default", size = "default", loading = false, success = false, error = false, disabled, ...props }, ref) => {
+  ({ className, children, variant = "default", size = "default", loading = false, success = false, error = false, animation = "none", disabled, ...props }, ref) => {
     const [isClicked, setIsClicked] = useState(false);
     const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -50,12 +51,20 @@ export const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButton
       icon: "h-10 w-10"
     };
 
-    const stateClasses = success 
+    const stateClasses = success
       ? "bg-green-500 text-white"
-      : error 
+      : error
       ? "bg-red-500 text-white"
       : loading
       ? "opacity-75 cursor-not-allowed"
+      : "";
+
+    const animationClasses = animation === "scale"
+      ? "hover:scale-105 active:scale-95 transition-transform duration-200"
+      : animation === "bounce"
+      ? "hover:animate-bounce"
+      : animation === "pulse"
+      ? "hover:animate-pulse"
       : "";
 
     return (
@@ -65,6 +74,7 @@ export const AnimatedButton = React.forwardRef<HTMLButtonElement, AnimatedButton
           variantClasses[variant],
           sizeClasses[size],
           stateClasses,
+          animationClasses,
           isClicked && "scale-95",
           className
         )}

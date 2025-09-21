@@ -26,7 +26,7 @@ router.get('/detailed', (req, res) => {
         environment: process.env.NODE_ENV || 'development',
         services: {
             geminiAI: !!process.env.GEMINI_API_KEY,
-            supabase: !!(process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY)
+            // supabase: !!(process.env.VITE_SUPABASE_URL && process.env.VITE_SUPABASE_ANON_KEY)
         },
         system: {
             memory: {

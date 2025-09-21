@@ -10,13 +10,15 @@ interface TTSSettings {
 
 type TTSEventType = "start" | "end" | "pause" | "resume" | "error" | "boundary";
 
+type TTSEventCallback = (data?: unknown) => void;
+
 class TextToSpeechService {
   private synthesis: SpeechSynthesis | null = null;
   private voices: SpeechSynthesisVoice[] = [];
   private settings: TTSSettings;
   private currentUtterance: SpeechSynthesisUtterance | null = null;
   private isInitialized = false;
-  private eventListeners: Map<TTSEventType, Set<Function>> = new Map();
+  private eventListeners: Map<TTSEventType, Set<TTSEventCallback>> = new Map();
 
   constructor() {
     this.settings = this.loadSettings();
@@ -100,18 +102,18 @@ class TextToSpeechService {
   }
 
   // Event management
-  addEventListener(event: TTSEventType, callback: Function): void {
+  addEventListener(event: TTSEventType, callback: TTSEventCallback): void {
     if (!this.eventListeners.has(event)) {
       this.eventListeners.set(event, new Set());
     }
     this.eventListeners.get(event)!.add(callback);
   }
 
-  removeEventListener(event: TTSEventType, callback: Function): void {
+  removeEventListener(event: TTSEventType, callback: TTSEventCallback): void {
     this.eventListeners.get(event)?.delete(callback);
   }
 
-  private emit(event: TTSEventType, data?: any): void {
+  private emit(event: TTSEventType, data?: unknown): void {
     this.eventListeners.get(event)?.forEach((callback) => callback(data));
   }
 
@@ -171,7 +173,7 @@ class TextToSpeechService {
       };
 
       this.currentUtterance = utterance;
-      this.synthesis.speak(utterance);
+      this.synthesis?.speak(utterance);
     });
   }
 
