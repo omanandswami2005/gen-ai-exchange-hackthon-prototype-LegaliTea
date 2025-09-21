@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 4,
   "builds": [
     {
       "src": "package.json",
@@ -10,10 +10,6 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    },
     {
       "source": "/(.*)",
       "destination": "/index.html"
