@@ -1,9 +1,9 @@
-const {
+import {
   GoogleGenAI,
-} = require('@google/genai');
-const { getLanguageName } = require('../utils/languageUtils.js');
-const { generateFallbackAnalysis } = require('../utils/fallbackAnalysis.js');
-require('dotenv').config();
+} from '@google/genai';
+import { getLanguageName } from '../utils/languageUtils.js';
+import { generateFallbackAnalysis } from '../utils/fallbackAnalysis.js';
+import 'dotenv/config';
 
 class AIService {
     constructor() {
@@ -342,4 +342,4 @@ IMPORTANT: Generate quiz in ${getLanguageName(language)} language. Focus on prac
     }
 }
 
-module.exports = new AIService();
+export default new AIService();

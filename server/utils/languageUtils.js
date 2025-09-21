@@ -44,7 +44,7 @@ function isLanguageSupported(code) {
     return supportedCodes.includes(code);
 }
 
-module.exports = {
+export {
     getLanguageName,
     getSupportedLanguages,
     isLanguageSupported

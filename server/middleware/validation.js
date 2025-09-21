@@ -114,7 +114,7 @@ const validateSaveRequest = (req, res, next) => {
     next();
 };
 
-module.exports = {
+export {
     validateAnalysisRequest,
     validateTermRequest,
     validateScenarioRequest,

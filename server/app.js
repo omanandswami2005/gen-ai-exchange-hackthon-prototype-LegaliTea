@@ -1,13 +1,13 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import 'dotenv/config';
 
-const { errorHandler } = require('./middleware/errorHandler.js');
-const { requestLogger } = require('./middleware/requestLogger.js');
-const { rateLimiter } = require('./middleware/rateLimiter.js');
-const analysisRoutes = require('./routes/analysis.js');
-const healthRoutes = require('./routes/health.js');
+import { errorHandler } from './middleware/errorHandler.js';
+import { requestLogger } from './middleware/requestLogger.js';
+import { rateLimiter } from './middleware/rateLimiter.js';
+import analysisRoutes from './routes/analysis.js';
+import healthRoutes from './routes/health.js';
 
 const app = express();
 
@@ -35,4 +35,4 @@ if (process.env.NODE_ENV === 'production') {
 // Error handling middleware (must be last)
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

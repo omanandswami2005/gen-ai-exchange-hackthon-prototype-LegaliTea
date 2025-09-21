@@ -149,4 +149,4 @@ function generateFallbackAnalysis(text, documentType) {
     };
 }
 
-module.exports = { generateFallbackAnalysis };
+export { generateFallbackAnalysis };

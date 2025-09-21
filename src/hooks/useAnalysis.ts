@@ -10,7 +10,7 @@ export const useAnalysis = () => {
   const { setAnalysisResult, setError, setProcessingStage } = useAppStore();
   const { currentLanguage } = useLanguage();
 
-  const analyzer = new AIAnalyzer();
+  const analyzer = new AIAnalyzer(import.meta.env.VITE_API_BASE_URL);
 
   const analysisMutation = useMutation({
     mutationFn: async ({
@@ -71,7 +71,7 @@ export const useSaveAnalysis = () => {
       email: string;
       analysis: AnalysisResult;
     }) => {
-      const response = await fetch("http://localhost:3001/api/save", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/save`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

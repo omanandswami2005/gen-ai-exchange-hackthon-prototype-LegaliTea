@@ -9,8 +9,8 @@ export interface AnalysisRequest {
 export class AIAnalyzer {
   private baseUrl: string;
 
-  constructor(baseUrl: string = "http://localhost:3001") {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl?: string) {
+    this.baseUrl = baseUrl || import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
   }
 
   async analyzeDocument(
